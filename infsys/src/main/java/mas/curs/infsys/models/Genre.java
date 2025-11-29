@@ -3,32 +3,29 @@ package mas.curs.infsys.models;
 import jakarta.persistence.*;
 import java.util.List;
 
-@Entity
-@Table(name = "series")
-public class Series {
 
+@Entity
+@Table(name = "genres")
+public class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column (nullable = false, unique = true)
     private String name;
 
     @Column
     private String description;
 
-    @OneToMany(mappedBy = "series")
-    private List<BookSeries> books;
+    @OneToMany(mappedBy = "genre")
+    private List<BookGenre> books;
 
-    public Series() {}
+    public Genre() {}
 
-    public Series(String name, String description) {
-
+    public Genre(String name, String description) {
         this.name = name;
         this.description = description;
     }
-
-
 
     public Long getId() {
         return id;
