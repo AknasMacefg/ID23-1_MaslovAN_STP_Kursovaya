@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
 <head>
     <title>Календарь релизов ИД "Инженерия Данных"</title>
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
@@ -7,12 +9,17 @@
 </head>
 </head>
 <body>
-<header>
+<header class="header__nav">
     <nav class="nav__list">
         <ul class="header__list">
             <li>
                 <a href="/">
                     Главная
+                </a>
+            </li>
+            <li>
+                <a href="/books">
+                    Книги
                 </a>
             </li>
             <li>
@@ -30,58 +37,45 @@
                     Жанры
                 </a>
             </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a  href="/users">
+                    Пользователи
+                </a>
+            </li>
             <li>
                 <a href="/about">
                     О создателе
                 </a>
             </li>
         </ul>
-        <form class="search__form">
+        <form class="search__nav">
             <label for="search">Поиск: </label>
             <input class="search_input" type="text" id="search" name="search">
             <input class="search_submit" type="submit" value="Найти">
         </form>
-        <ul class="login__form">
+        <ul class="login__nav">
             <li>
-                <a href="/login">
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN')" href="/login">
                     Вход
                 </a>
             </li>
             <li>
-                <a href="/register">
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN')" href="/profile">
+                    Личный профиль
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN')" href="/register">
                     Регистрация
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN')" href="/logout">
+                    Выход
                 </a>
             </li>
         </ul>
     </nav>
 </header>
-
-
-<div class="calendar-container">
-    <div class="calendar-controls">
-        <button id="prev-year">« Год</button>
-        <div class="year-selector">
-            <button id="prev-month">‹</button>
-            <select id="month-select"></select>
-            <select id="year-select"></select>
-            <button id="next-month">›</button>
-        </div>
-        <button id="next-year">Год »</button>
-    </div>
-
-    <div class="calendar" id="calendar">
-        <!-- Заголовки дней недели -->
-        <div class="header">
-            <div class="day-name">Пн</div>
-            <div class="day-name">Вт</div>
-            <div class="day-name">Ср</div>
-            <div class="day-name">Чт</div>
-            <div class="day-name">Пт</div>
-            <div class="day-name">Сб</div>
-            <div class="day-name">Вс</div>
-        </div>
-        <!-- Сетка дней будет генерироваться JavaScript -->
-    </div>
-</div>
 </body>
 </html>

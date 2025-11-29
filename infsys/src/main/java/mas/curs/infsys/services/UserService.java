@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import mas.curs.infsys.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -33,16 +34,18 @@ public class UserService {
         return userRepository.count() == 0;
     }
     public boolean register(User user) {
-        if (user == null || user.getEmail() == null) {
+        if (user == null || user.getEmail() == null || user.getUsername() == null || user.getPassword() == null) {
             return false;
         }
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(user.getEmail()) || userRepository.existsByUsername(user.getUsername())) {
             return false;
         }
         // Шифруем сырой пароль перед сохранением
         if (user.getPassword() != null && !user.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+        user.setCreated_at(LocalDateTime.now());
+
         userRepository.save(user);
         return true;
     }
