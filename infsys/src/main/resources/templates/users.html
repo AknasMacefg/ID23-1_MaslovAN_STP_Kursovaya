@@ -78,30 +78,20 @@
 </header>
 
 <div>
-    <form th:action="@{/login}" method="post" class="database-table-edit_form auth-form">
-        <h2>
-            Вход
-        </h2>
-        <div th:if="${param.error}">
-            Неправильный email или пароль.
+    <div class="grid-container">
+        <div class="grid-item table-header">
+            <p>Логин</p>
+            <p>Email</p>
+            <p>Роль</p>
+            <p>Время создания</p>
         </div>
-        <div th:if="${param.logout}">
-            Вы успешно вышли.
-        </div>
-        <div class="input_form">
-            <label for="email">Email：</label>
-            <input type="email" id="email" name="email" required placeholder="example@mail.com">
-        </div>
-        <div class="input_form">
-            <label class for="password">Пароль：</label>
-            <input type="password" id="password" name="password" required placeholder="password">
-        </div>
-        <div>
-            <input type="checkbox" id="remember_me" name="rememberme">
-            <label for="remember_me">Запомнить этот компьютер?</label>
-        </div>
-        <button type="submit" class="auth-form-button">Вход</button>
-    </form>
+        <a href="/users/update" class="grid-item" th:each="user : ${users}">
+            <p th:text="${user.username}"></p>
+            <p th:text="${user.email}"></p>
+            <p th:text="${user.role}"></p>
+            <p th:text="${user.created_at}"></p>
+        </a>
+    </div>
 </div>
 </body>
 </html>
