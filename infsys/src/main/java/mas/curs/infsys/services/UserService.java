@@ -50,13 +50,12 @@ public class UserService {
         return true;
     }
 
-
     public void deleteUser(Long petId) {
         userRepository.delete(userRepository.findById(petId).get());
     }
 
     public void addUser(User user) {
-        System.out.println(user.getId());
+        user.setUpdated_at(LocalDateTime.now());
         userRepository.save(user);
     }
 }

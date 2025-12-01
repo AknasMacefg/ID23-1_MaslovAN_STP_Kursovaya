@@ -42,40 +42,59 @@
                     Пользователи
                 </a>
             </li>
-            <li>
-                <a href="/about">
-                    О создателе
+            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                <a href="/metrics">
+                    Метрики
                 </a>
             </li>
         </ul>
         <form class="search__nav">
-            <label for="search">Поиск: </label>
+            <label class="search_label" for="search">Поиск: </label>
             <input class="search_input" type="text" id="search" name="search">
             <input class="search_submit" type="submit" value="Найти">
         </form>
         <ul class="login__nav">
             <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN')" href="/login">
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
                     Вход
                 </a>
             </li>
             <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN')" href="/profile">
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
                     Личный профиль
                 </a>
             </li>
             <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN')" href="/register">
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
                     Регистрация
                 </a>
             </li>
             <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN')" href="/logout">
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
                     Выход
                 </a>
             </li>
         </ul>
     </nav>
 </header>
+<section class="section_middle">
+    <div>
+
+    </div>
+    <div>
+
+    </div>
+    <div>
+
+    </div>
+</section>
+<footer class="footer">
+    <a class="footer-links" href="/about">
+        О создателе
+    </a>
+    <a class="footer-links" href="/contacts">
+        Контакты
+    </a>
+</footer>
 </body>
 </html>

@@ -2,14 +2,16 @@ package mas.curs.infsys.controllers;
 
 import mas.curs.infsys.models.Role;
 import mas.curs.infsys.models.User;
-import mas.curs.infsys.repositories.UserRepository;
+import mas.curs.infsys.services.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Optional;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 
 /**
  * Веб-контроллер для управления пользователями (доступен только пользователям с ролью {@code SUPER_ADMIN}).
@@ -25,15 +27,15 @@ public class UserController {
 
 
     /** Репозиторий пользователей, обеспечивающий доступ к данным. */
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     /**
      * Конструктор контроллера пользователей.
      *
      * @param userRepository репозиторий пользователей
      */
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     /**
@@ -45,51 +47,25 @@ public class UserController {
      */
     @GetMapping
     public String userPage(Model model, @RequestParam(required = false) String msg) {
-        model.addAttribute("users", userRepository.findAll());
+        model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("message", msg);
         return "users";
     }
 
-    /**
-     * Обновляет роль выбранного пользователя.
-     *
-     * @param id идентификатор пользователя
-     * @param role новая роль для назначения пользователю
-     * @param redirectAttributes атрибуты для передачи flash-сообщений между запросами
-     * @return редирект на страницу пользователей с сообщением об успешном обновлении или ошибке
-     */
-    @PostMapping("/update")
-    public String updateRole(@RequestParam Long id,
-                             @RequestParam Role role,
-                             RedirectAttributes redirectAttributes) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setRole(role);
-            userRepository.save(user);
-            redirectAttributes.addAttribute("msg", "Роль успешно обновлена.");
-        } else {
-            redirectAttributes.addAttribute("msg", "Пользователь не найден.");
-        }
-        return "redirect:/users";
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable("id") Long id, Model model) {
+        User user = userService.getUserById(id); // Retrieve the existing item
+        model.addAttribute("user", user);
+        model.addAttribute("allRoles", Arrays.copyOfRange(Role.values(), 0, 3)); // Add the item to the model
+        return "edit-user"; // Name of your edit Thymeleaf template
     }
 
-    /**
-     * Удаляет пользователя по его идентификатору.
-     *
-     * @param id идентификатор пользователя для удаления
-     * @param redirectAttributes flash-атрибуты для передачи сообщений об операции
-     * @return текстовое сообщение о результате операции
-     */
-    @DeleteMapping("/delete/{id}")
-    @ResponseBody
-    public String deleteUser(@PathVariable Long id,
-                             RedirectAttributes redirectAttributes) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return "Пользователь удалён.";
-        } else {
-            return "Пользователь не найден.";
-        }
+    // Handler to process the form submission (POST request)
+    @PostMapping("/edit/{id}")
+    public String updateItem(@ModelAttribute("user") User userDetails) {
+        // Here you would use your service to save the updated item details
+       userService.addUser(userDetails);
+        return "redirect:/users"; // Redirect back to the list page after saving
     }
+
 }

@@ -35,6 +35,17 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime created_at;
 
+    @Column
+    private LocalDateTime updated_at;
+
+    @Column
+    private LocalDateTime log_in_at;
+
+    @Column
+    private LocalDateTime logout_at;
+
+
+
     public User() {}
 
     public User(String username, String email, String password, boolean email_notification, LocalDateTime created_at) {
@@ -43,6 +54,7 @@ public class User {
         this.password = password;
         this.email_notification = email_notification;
         this.created_at = created_at;
+
     }
 
     public Long getId() {
@@ -99,5 +111,29 @@ public class User {
 
     public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
+    }
+
+    public LocalDateTime getUpdated_at() {
+        return updated_at;
+    }
+
+    public void setUpdated_at(LocalDateTime updated_at) {
+        this.updated_at = updated_at;
+    }
+
+    public LocalDateTime getLog_in_at() {
+        return log_in_at;
+    }
+
+    public void setLog_in_at(LocalDateTime log_in_at) {
+        this.log_in_at = log_in_at;
+    }
+
+    public LocalDateTime getLogout_at() {
+        return logout_at;
+    }
+
+    public void setLogout_at(LocalDateTime logout_at) {
+        this.logout_at = logout_at;
     }
 }
