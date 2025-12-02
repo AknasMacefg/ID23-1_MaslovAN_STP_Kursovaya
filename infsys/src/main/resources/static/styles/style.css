@@ -169,6 +169,22 @@ a:hover {
     font-size: 15px;
 }
 
+.flex-header {
+    font-weight: 800;
+    font-size: 20px;
+}
+
+.flex-item {
+    flex-direction: row;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.flex-container {
+    flex-direction: column;
+}
+
 .footer {
     display: flex;
     flex-direction: row;

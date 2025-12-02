@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
+<head>
+    <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
+    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
+</head>
+<body>
+<header class="header__nav">
+    <nav class="nav__list">
+        <ul class="header__list">
+            <li>
+                <a href="/">
+                    Главная
+                </a>
+            </li>
+            <li>
+                <a href="/books">
+                    Книги
+                </a>
+            </li>
+            <li>
+                <a href="/authors">
+                    Авторы
+                </a>
+            </li>
+            <li>
+                <a href="/series">
+                    Серии
+                </a>
+            </li>
+            <li>
+                <a href="/genres">
+                    Жанры
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a  href="/users">
+                    Пользователи
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                <a href="/metrics">
+                    Метрики
+                </a>
+            </li>
+        </ul>
+        <form class="search__nav">
+            <label class="search_label" for="search">Поиск: </label>
+            <input class="search_input" type="text" id="search" name="search">
+            <input class="search_submit" type="submit" value="Найти">
+        </form>
+        <ul class="login__nav">
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
+                    Вход
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
+                    Личный профиль
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
+                    Регистрация
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
+                    Выход
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<section class="section_middle">
+    <div>
+
+    </div>
+    <form action="#" th:action="@{/genres/edit/new}" th:object="${genre}" method="post" class="database-table-edit_form auth-form">
+        <h2>Изменение жанра</h2>
+        <div th:if="${param.error}">
+            Такой жанр уже существует.
+        </div>
+        <input type="hidden" th:field="*{id}" />
+        <div class="input_form">
+            <label for="name">Название жанра: </label>
+            <input type="text" id="name" th:field="*{name}" />
+        </div>
+        <div class="input_form">
+            <label for="descripton">Описание: </label>
+            <input type="text" id="descripton" th:field="*{description}" />
+        </div>
+        <div class="input_form">
+            <button class="auth-form-button" type="submit">Сохранить изменения</button>
+            <a class="input_cancel" href="/genres">Отмена</a>
+        </div>
+
+    </form>
+    <div>
+
+    </div>
+</section>
+<footer class="footer">
+    <a class="footer-links" href="/about">
+        О создателе
+    </a>
+    <a class="footer-links" href="/contacts">
+        Контакты
+    </a>
+</footer>
+</body>
+</html>

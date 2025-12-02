@@ -83,7 +83,7 @@ public class SecurityConfig {
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/","/login", "/register", "/styles/**", "/scripts/**", "/h2-console/**")
+                        .requestMatchers("/", "/genres", "/authors", "/series", "/login", "/register", "/styles/**", "/scripts/**", "/h2-console/**")
                         .permitAll()
                         .anyRequest().authenticated()
                 )
