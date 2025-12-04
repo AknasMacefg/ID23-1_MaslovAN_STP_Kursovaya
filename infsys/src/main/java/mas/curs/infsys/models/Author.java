@@ -1,6 +1,8 @@
 package mas.curs.infsys.models;
 
 import jakarta.persistence.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Entity
@@ -25,6 +27,9 @@ public class Author {
 
     @Column
     private String photo_url;
+
+    @Transient
+    private MultipartFile photoFile;
 
     @OneToMany(mappedBy = "author")
     private List<BookAuthor> books;
@@ -85,5 +90,13 @@ public class Author {
 
     public void setPhoto_url(String photo_url) {
         this.photo_url = photo_url;
+    }
+
+    public MultipartFile getPhotoFile() {
+        return photoFile;
+    }
+
+    public void setPhotoFile(MultipartFile photoFile) {
+        this.photoFile = photoFile;
     }
 }

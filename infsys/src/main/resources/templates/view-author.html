@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
+<head>
+    <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
+    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
+</head>
+<body>
+<header class="header__nav">
+    <nav class="nav__list">
+        <ul class="header__list">
+            <li>
+                <a href="/">
+                    Главная
+                </a>
+            </li>
+            <li>
+                <a href="/books">
+                    Книги
+                </a>
+            </li>
+            <li>
+                <a href="/authors">
+                    Авторы
+                </a>
+            </li>
+            <li>
+                <a href="/series">
+                    Серии
+                </a>
+            </li>
+            <li>
+                <a href="/genres">
+                    Жанры
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a  href="/users">
+                    Пользователи
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                <a href="/metrics">
+                    Метрики
+                </a>
+            </li>
+        </ul>
+        <form class="search__nav">
+            <label class="search_label" for="search">Поиск: </label>
+            <input class="search_input" type="text" id="search" name="search">
+            <input class="search_submit" type="submit" value="Найти">
+        </form>
+        <ul class="login__nav">
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
+                    Вход
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
+                    Личный профиль
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
+                    Регистрация
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
+                    Выход
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<section class="section_middle">
+    <div>
+    </div>
+    <div class="grid-container-genres" th:object="${authors}">
+        <div class="genre-header">
+            <div class="genre-header-flex">
+                <p th:text="*{firstname}"></p>
+                <p th:text="*{middlename}"></p>
+                <p th:text="*{lastname}"></p>
+                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/authors/edit/{id}(id=*{id})}">Изменить</a>
+                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/authors/delete/{id}(id=*{id})}">Удалить</a>
+            </div>
+
+        </div>
+        <div class="grid-item-genre">
+            <p th:text="*{biography}"></p>
+            <img th:src="@{*{photo_url}}" alt="Фотография Автора" style="max-width: 200px;">
+        </div>
+    </div>
+    <div>
+
+    </div>
+</section>
+<footer class="footer">
+    <a class="footer-links" href="/about">
+        О создателе
+    </a>
+    <a class="footer-links" href="/contacts">
+        Контакты
+    </a>
+</footer>
+</body>
+</html>

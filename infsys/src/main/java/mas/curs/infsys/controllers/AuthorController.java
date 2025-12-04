@@ -1,18 +1,26 @@
 package mas.curs.infsys.controllers;
 import mas.curs.infsys.models.Author;
-import mas.curs.infsys.models.User;
 import mas.curs.infsys.services.AuthorService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+
+
 
 @Controller
-@RequestMapping("/author")
+@RequestMapping("/authors")
 public class AuthorController {
+
     /** Репозиторий пользователей, обеспечивающий доступ к данным. */
     private final AuthorService authorService;
 
@@ -34,59 +42,142 @@ public class AuthorController {
      */
     @GetMapping
     public String authorPage(Model model, @RequestParam(required = false) String msg) {
-        model.addAttribute("author", authorService.getAllAuthors());
+        model.addAttribute("authors", authorService.getAllAuthors());
         model.addAttribute("message", msg);
-        return "author";
+        return "authors";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
-        Author author = authorService.getAuthorById(id); // Retrieve the existing item
-        model.addAttribute("author", author);
-        return "edit-author"; // Name of your edit Thymeleaf template
+        Author author = authorService.getAuthorById(id);
+        model.addAttribute("authors", author);
+        return "edit-author";
     }
 
-    // Handler to process the form submission (POST request)
     @PostMapping("/edit/{id}")
-    public String updateAuthor(@ModelAttribute("author") Author authorDetails, Model model, RedirectAttributes redirectAttributes) {
-        boolean success = authorService.updateAuthor(authorDetails);
-        if (success) {
-            redirectAttributes.addAttribute("id", authorDetails.getId());
-            return "redirect:/authors/{id}"; // Works correctly now
-        } else {
-            model.addAttribute("error", "Данное имя уже занято.");
-            return "redirect:/authors/edit/{id}?error";
+    public String updateAuthor(@PathVariable("id") Long id,
+                               @ModelAttribute("authors") Author author,
+                               @RequestParam("photo") MultipartFile file,
+                               RedirectAttributes redirectAttributes) {
+
+        try {
+            // Handle file upload
+            if (file != null && !file.isEmpty()) {
+                String fileName = saveImage(file);
+                author.setPhoto_url("/images/authors/" + fileName);
+            } else if (author.getPhoto_url() == null || author.getPhoto_url().isEmpty()) {
+                // Keep existing photo if no new file uploaded
+                Author existingAuthor = authorService.getAuthorById(id);
+                if (existingAuthor != null) {
+                    author.setPhoto_url(existingAuthor.getPhoto_url());
+                }
+            }
+
+            deleteOldImage(authorService.getAuthorById(id).getPhoto_url());
+
+            author.setId(id);
+            boolean success = authorService.updateAuthor(author);
+
+
+            if (success) {
+                redirectAttributes.addFlashAttribute("success", "Автор успешно обновлен");
+                return "redirect:/authors/" + id;
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Произошла ошибка при обновлении");
+                return "redirect:/authors/edit/" + id;
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка загрузки изображения: " + e.getMessage());
+            return "redirect:/authors/edit/" + id;
         }
     }
 
     @GetMapping("/{id}")
     public String showViewForm(@PathVariable("id") Long id, Model model) {
         Author author = authorService.getAuthorById(id); // Retrieve the existing item
-        model.addAttribute("author", author);
+        model.addAttribute("authors", author);
         return "view-author"; // Name of your edit Thymeleaf template
     }
 
     @GetMapping("/edit/new")
     public String showNewAuthorForm(Model model) {
-        model.addAttribute("author", new Author());
+        model.addAttribute("authors", new Author());
         return "edit-author";
     }
 
     @PostMapping("/edit/new")
-    public String addAuthor(@ModelAttribute("author") Author author, Model model) {
-        boolean success = authorService.addAuthor(author);
-        if (success) {
-            return "redirect:/authors";
-        } else {
-            model.addAttribute("error", "Такой автор уже создан!");
-            return "redirect:/authors/edit/new?error";
+    public String addAuthor(@ModelAttribute("authors") Author author,
+                            @RequestParam("photo") MultipartFile file,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            String fileName;
+            // Handle file upload for new author
+            if (file != null && !file.isEmpty()) {
+                fileName = saveImage(file);
+
+            }
+            else {
+                fileName = "default.jpg";
+            }
+            author.setPhoto_url("/images/authors/" + fileName);
+            boolean success = authorService.addAuthor(author);
+
+            if (success) {
+                redirectAttributes.addFlashAttribute("success", "Автор успешно создан");
+                return "redirect:/authors";
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Произошла ошибка при создании");
+                return "redirect:/authors/edit/new";
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка загрузки изображения: " + e.getMessage());
+            return "redirect:/authors/edit/new";
         }
     }
+
 
     @GetMapping("/delete/{id}")
     public String deleteAuthor(@PathVariable("id") Long id) {
         authorService.deleteAuthor(id);
         return "redirect:/authors";
+    }
+
+
+    private String saveImage(MultipartFile file) throws IOException {
+        // Generate unique filename
+        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String fileExtension = "";
+
+        if (originalFileName.contains(".")) {
+            fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        }
+
+        String fileName = UUID.randomUUID().toString() + fileExtension;
+
+        // Create upload directory if it doesn't exist
+        String UPLOAD_DIR = "src/main/resources/static/images/authors/";
+        Path uploadPath = Paths.get(UPLOAD_DIR);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        // Save file
+        Path filePath = uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return fileName;
+    }
+
+    private void deleteOldImage(String oldImagePath) {
+        if (oldImagePath != null && !oldImagePath.isEmpty() && !oldImagePath.equals("default.jpg")) {
+            try {
+                Path oldFilePath = Paths.get("src/main/resources/static" + oldImagePath);
+                Files.deleteIfExists(oldFilePath);
+            } catch (IOException e) {
+                // Log the error but don't fail the operation
+                e.printStackTrace();
+            }
+        }
     }
 
 }
