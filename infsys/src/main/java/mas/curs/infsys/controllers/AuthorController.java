@@ -1,7 +1,7 @@
 package mas.curs.infsys.controllers;
-import mas.curs.infsys.models.Genre;
+import mas.curs.infsys.models.Author;
 import mas.curs.infsys.models.User;
-import mas.curs.infsys.services.GenreService;
+import mas.curs.infsys.services.AuthorService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,18 +11,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Arrays;
 
 @Controller
-@RequestMapping("/genres")
-public class GenreController {
+@RequestMapping("/author")
+public class AuthorController {
     /** Репозиторий пользователей, обеспечивающий доступ к данным. */
-    private final GenreService genreService;
+    private final AuthorService authorService;
 
     /**
      * Конструктор контроллера пользователей.
      *
      * @param userRepository репозиторий пользователей
      */
-    public GenreController(GenreService genreService) {
-        this.genreService = genreService;
+    public AuthorController(AuthorService authorService) {
+        this.authorService = authorService;
     }
 
     /**
@@ -33,60 +33,60 @@ public class GenreController {
      * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
      */
     @GetMapping
-    public String genrePage(Model model, @RequestParam(required = false) String msg) {
-        model.addAttribute("genres", genreService.getAllGenres());
+    public String authorPage(Model model, @RequestParam(required = false) String msg) {
+        model.addAttribute("author", authorService.getAllAuthors());
         model.addAttribute("message", msg);
-        return "genres";
+        return "author";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
-        Genre genre = genreService.getGenreById(id); // Retrieve the existing item
-        model.addAttribute("genre", genre);
-        return "edit-genre"; // Name of your edit Thymeleaf template
+        Author author = authorService.getAuthorById(id); // Retrieve the existing item
+        model.addAttribute("author", author);
+        return "edit-author"; // Name of your edit Thymeleaf template
     }
 
     // Handler to process the form submission (POST request)
     @PostMapping("/edit/{id}")
-    public String updateGenre(@ModelAttribute("genre") Genre genreDetails, Model model, RedirectAttributes redirectAttributes) {
-        boolean success = genreService.updateGenre(genreDetails);
+    public String updateAuthor(@ModelAttribute("author") Author authorDetails, Model model, RedirectAttributes redirectAttributes) {
+        boolean success = authorService.updateAuthor(authorDetails);
         if (success) {
-            redirectAttributes.addAttribute("id", genreDetails.getId());
-            return "redirect:/genres/{id}"; // Works correctly now
+            redirectAttributes.addAttribute("id", authorDetails.getId());
+            return "redirect:/authors/{id}"; // Works correctly now
         } else {
             model.addAttribute("error", "Данное имя уже занято.");
-            return "redirect:/genres/edit/{id}?error";
+            return "redirect:/authors/edit/{id}?error";
         }
     }
 
     @GetMapping("/{id}")
     public String showViewForm(@PathVariable("id") Long id, Model model) {
-        Genre genre = genreService.getGenreById(id); // Retrieve the existing item
-        model.addAttribute("genre", genre);
-        return "view-genre"; // Name of your edit Thymeleaf template
+        Author author = authorService.getAuthorById(id); // Retrieve the existing item
+        model.addAttribute("author", author);
+        return "view-author"; // Name of your edit Thymeleaf template
     }
 
     @GetMapping("/edit/new")
-    public String showNewGenreForm(Model model) {
-        model.addAttribute("genre", new Genre());
-        return "edit-genre";
+    public String showNewAuthorForm(Model model) {
+        model.addAttribute("author", new Author());
+        return "edit-author";
     }
 
     @PostMapping("/edit/new")
-    public String addGenre(@ModelAttribute("genre") Genre genre, Model model) {
-        boolean success = genreService.addGenre(genre);
+    public String addAuthor(@ModelAttribute("author") Author author, Model model) {
+        boolean success = authorService.addAuthor(author);
         if (success) {
-            return "redirect:/genres";
+            return "redirect:/authors";
         } else {
-            model.addAttribute("error", "Такой жанр уже создан!");
-            return "redirect:/genres/edit/new?error";
+            model.addAttribute("error", "Такой автор уже создан!");
+            return "redirect:/authors/edit/new?error";
         }
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteGenre(@PathVariable("id") Long id) {
-        genreService.deleteGenre(id);
-        return "redirect:/genres";
+    public String deleteAuthor(@PathVariable("id") Long id) {
+        authorService.deleteAuthor(id);
+        return "redirect:/authors";
     }
 
 }

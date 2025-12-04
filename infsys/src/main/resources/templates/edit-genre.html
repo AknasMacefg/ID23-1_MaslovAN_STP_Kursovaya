@@ -79,27 +79,34 @@
 
 <section class="section_middle">
     <div>
-
     </div>
-    <form action="#" th:action="@{/genres/edit/new}" th:object="${genre}" method="post" class="database-table-edit_form auth-form">
-        <h2>Изменение жанра</h2>
-        <div th:if="${param.error}">
-            Такой жанр уже существует.
-        </div>
+    <form class="grid-container-genres" action="#" method="post" th:object="${genre}">
         <input type="hidden" th:field="*{id}" />
-        <div class="input_form">
-            <label for="name">Название жанра: </label>
-            <input type="text" id="name" th:field="*{name}" />
+        <div class="genre-header">
+            <div class="genre-header-flex">
+                <label for="name">
+                    Название
+                    <input type="text" name="name" id="name" th:field="*{name}">
+                </label>
+                <button class="grid-header-a" type="submit">Сохранить</button>
+                <a th:if="${genre.id != null}"
+                   class="grid-header-a"
+                   th:href="@{/genres/{id}(id=${genre.id})}">
+                    Отмена
+                </a>
+                <a th:if="${genre.id == null}"
+                   class="grid-header-a"
+                   th:href="@{/genres}">
+                    Отмена
+                </a>
+            </div>
         </div>
-        <div class="input_form">
-            <label for="descripton">Описание: </label>
-            <input type="text" id="descripton" th:field="*{description}" />
+        <div class="grid-item-genre">
+            <label for="description">
+                Описание
+                <input type="text" name="description" id="description" th:field="*{description}">
+            </label>
         </div>
-        <div class="input_form">
-            <button class="auth-form-button" type="submit">Сохранить изменения</button>
-            <a class="input_cancel" href="/genres">Отмена</a>
-        </div>
-
     </form>
     <div>
 

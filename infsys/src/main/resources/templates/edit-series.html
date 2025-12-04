@@ -79,20 +79,35 @@
 
 <section class="section_middle">
     <div>
-
     </div>
-    <div class="grid-container-genres">
+    <form class="grid-container-genres" action="#" method="post" th:object="${series}">
+        <input type="hidden" th:field="*{id}" />
         <div class="genre-header">
             <div class="genre-header-flex">
-                <p>Жанры</p>
-                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/genres/edit/new}">Добавить</a>
+                <label for="name">
+                    Название
+                    <input type="text" name="name" id="name" th:field="*{name}">
+                </label>
+                <button class="grid-header-a" type="submit">Сохранить</button>
+                <a th:if="${series.id != null}"
+                   class="grid-header-a"
+                   th:href="@{/series/{id}(id=${series.id})}">
+                    Отмена
+                </a>
+                <a th:if="${series.id == null}"
+                   class="grid-header-a"
+                   th:href="@{/series}">
+                    Отмена
+                </a>
             </div>
-
         </div>
-        <div class="grid-item-genre" th:each="genre : ${genres}">
-            <a class="genre-a" th:href="@{/genres/{id}(id=${genre.id})}" th:text="${genre.name}"></a>
+        <div class="grid-item-genre">
+            <label for="description">
+                Описание
+                <input type="text" name="description" id="description" th:field="*{description}">
+            </label>
         </div>
-    </div>
+    </form>
     <div>
 
     </div>

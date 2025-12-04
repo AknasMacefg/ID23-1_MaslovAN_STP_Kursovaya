@@ -84,13 +84,13 @@
     <div class="grid-container-genres">
         <div class="genre-header">
             <div class="genre-header-flex">
-                <p>Жанры</p>
-                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/genres/edit/new}">Добавить</a>
+                <p>Серии</p>
+                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/series/edit/new}">Добавить</a>
             </div>
 
         </div>
-        <div class="grid-item-genre" th:each="genre : ${genres}">
-            <a class="genre-a" th:href="@{/genres/{id}(id=${genre.id})}" th:text="${genre.name}"></a>
+        <div class="grid-item-genre" th:each="serie : ${series}">
+            <a class="genre-a" th:href="@{/series/{id}(id=${serie.id})}" th:text="${serie.name}"></a>
         </div>
     </div>
     <div>

@@ -45,4 +45,17 @@ public class GenreService {
         return true;
     }
 
+    public boolean updateGenre(Genre genre) {
+        if (genreRepository.existsById(genre.getId())) {
+            if (genreRepository.existsByName(genre.getName().toLowerCase(Locale.ROOT))) {
+                return false;
+            }
+            genre.setName(genre.getName().toLowerCase(Locale.ROOT));
+            genreRepository.save(genre);
+            return true;
+        }
+        return false;
+    }
+
+
 }

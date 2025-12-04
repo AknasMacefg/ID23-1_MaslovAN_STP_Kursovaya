@@ -79,18 +79,18 @@
 
 <section class="section_middle">
     <div>
-
     </div>
-    <div class="grid-container-genres">
+    <div class="grid-container-genres" th:object="${genre}">
         <div class="genre-header">
             <div class="genre-header-flex">
-                <p>Жанры</p>
-                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/genres/edit/new}">Добавить</a>
+                <p th:text="*{name}"></p>
+                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/genres/edit/{id}(id=*{id})}">Изменить</a>
+                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/genres/delete/{id}(id=*{id})}">Удалить</a>
             </div>
 
         </div>
-        <div class="grid-item-genre" th:each="genre : ${genres}">
-            <a class="genre-a" th:href="@{/genres/{id}(id=${genre.id})}" th:text="${genre.name}"></a>
+        <div class="grid-item-genre">
+            <p th:text="*{description}"></p>
         </div>
     </div>
     <div>
