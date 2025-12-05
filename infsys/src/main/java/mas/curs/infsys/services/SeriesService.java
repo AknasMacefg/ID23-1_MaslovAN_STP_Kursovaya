@@ -14,7 +14,7 @@ import java.util.Locale;
 
 @Service
 public class SeriesService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private static final Logger log = LoggerFactory.getLogger(SeriesService.class);
     @Autowired
     private UserService userService;
 

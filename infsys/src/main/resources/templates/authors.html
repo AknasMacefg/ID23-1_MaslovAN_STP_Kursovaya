@@ -89,9 +89,10 @@
             </div>
 
         </div>
-        <div class="grid-item-genre" th:each="author : ${authors}">
-            <a class="genre-a" th:href="@{/authors/{id}(id=${author.id})}" th:text="${author.firstname + ' ' + author.middlename + ' ' + author.lastname}"></a>
-        </div>
+        <a th:href="@{/authors/{id}(id=${author.id})}" class="grid-item-genre" th:each="author : ${authors}">
+            <img class="grid-item-img" th:src="@{${author.photo_url}}">
+            <p class="genre-a"  th:text="${author.firstname + ' ' + author.middlename + ' ' + author.lastname}"></p>
+        </a>
     </div>
     <div>
 

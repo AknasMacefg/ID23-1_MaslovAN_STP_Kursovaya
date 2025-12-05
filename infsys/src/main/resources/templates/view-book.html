@@ -80,47 +80,28 @@
 <section class="section_middle">
     <div>
     </div>
-    <form class="grid-container-genres" action="#" method="post"
-          th:object="${authors}" enctype="multipart/form-data">
-        <input type="hidden" th:field="*{id}" />
+    <div class="grid-container-genres" th:object="${books}">
         <div class="genre-header">
             <div class="genre-header-flex">
-                <label for="firstname">
-                    Имя
-                    <input type="text" name="firstname" id="firstname" th:field="*{firstname}">
-                </label>
-                <label for="lastname">
-                    Фамилия
-                    <input type="text" name="lastname" id="lastname" th:field="*{lastname}">
-                </label>
-                <label for="middlename">
-                    Отчество
-                    <input type="text" name="middlename" id="middlename" th:field="*{middlename}">
-                </label>
-                <button class="grid-header-a" type="submit">Сохранить</button>
-                <a th:if="${authors.id != null}"
-                   class="grid-header-a"
-                   th:href="@{/authors/{id}(id=${authors.id})}"> <!-- Fixed: was series.id -->
-                    Отмена
-                </a>
-                <a th:if="${authors.id == null}"
-                   class="grid-header-a"
-                   th:href="@{/authors}">
-                    Отмена
-                </a>
+                <p th:text="*{title}"></p>
+                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/books/edit/{id}(id=*{id})}">Изменить</a>
+                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/books/delete/{id}(id=*{id})}">Удалить</a>
             </div>
+
         </div>
         <div class="grid-flex-column">
-            <label for="biography">
-                Описание
-                <input type="text" name="biography" id="biography" th:field="*{biography}">
-            </label>
-            <label for="photo">
-                Фотография
-                <input type="file" name="photo" id="photo" accept="image/*">
-            </label>
+            <p th:text="'Описание: ' + *{description}"></p>
+            <p th:text="'ISBN: ' + *{isbn}"></p>
+            <p th:text="'Язык: ' + *{language}"></p>
+            <p th:text="'Количество страниц: ' + *{pages}"></p>
+            <p th:text="'Цена: ' + *{price}"></p>
+            <p th:text="'Дата выхода: ' + *{release_date}"></p>
+            <p th:text="'Cтатус: ' + *{status}"></p>
+            <p th:if="${books.adult_check == true}">Только 18+</p>
+            <p>Обложка: </p>
+            <img  th:src="@{*{image_url}}" alt="Фотография книги" style="max-width: 200px;">
         </div>
-    </form>
+    </div>
     <div>
 
     </div>

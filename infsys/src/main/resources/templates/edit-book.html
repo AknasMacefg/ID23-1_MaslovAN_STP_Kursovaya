@@ -81,43 +81,63 @@
     <div>
     </div>
     <form class="grid-container-genres" action="#" method="post"
-          th:object="${authors}" enctype="multipart/form-data">
+          th:object="${books}" enctype="multipart/form-data">
         <input type="hidden" th:field="*{id}" />
         <div class="genre-header">
             <div class="genre-header-flex">
-                <label for="firstname">
-                    Имя
-                    <input type="text" name="firstname" id="firstname" th:field="*{firstname}">
-                </label>
-                <label for="lastname">
-                    Фамилия
-                    <input type="text" name="lastname" id="lastname" th:field="*{lastname}">
-                </label>
-                <label for="middlename">
-                    Отчество
-                    <input type="text" name="middlename" id="middlename" th:field="*{middlename}">
+                <label for="title">
+                    Название
+                    <input type="text" name="title" id="title" th:field="*{title}">
                 </label>
                 <button class="grid-header-a" type="submit">Сохранить</button>
-                <a th:if="${authors.id != null}"
+                <a th:if="${books.id != null}"
                    class="grid-header-a"
-                   th:href="@{/authors/{id}(id=${authors.id})}"> <!-- Fixed: was series.id -->
+                   th:href="@{/books/{id}(id=${books.id})}"> <!-- Fixed: was series.id -->
                     Отмена
                 </a>
-                <a th:if="${authors.id == null}"
+                <a th:if="${books.id == null}"
                    class="grid-header-a"
-                   th:href="@{/authors}">
+                   th:href="@{/books}">
                     Отмена
                 </a>
             </div>
         </div>
         <div class="grid-flex-column">
-            <label for="biography">
+            <label for="description">
                 Описание
-                <input type="text" name="biography" id="biography" th:field="*{biography}">
+                <input type="text" name="description" id="description" th:field="*{description}">
             </label>
-            <label for="photo">
+            <label for="image">
                 Фотография
-                <input type="file" name="photo" id="photo" accept="image/*">
+                <input type="file" name="image" id="image" accept="image/*">
+            </label>
+            <label for="isbn">
+                ISBN
+                <input type="text" name="isbn" id="isbn" th:field="*{isbn}">
+            </label>
+            <label for="language">
+                Язык
+                <input type="text" name="language" id="language" th:field="*{language}">
+            </label>
+            <label for="pages">
+                Количество страниц
+                <input type="number" name="pages" id="pages" th:field="*{pages}">
+            </label>
+            <label for="price">
+                Цена
+                <input type="number" name="price" id="price" th:field="*{price}">
+            </label>
+            <label for="release_date">
+                Дата выхода
+                <input type="date" name="release_date" id="release_date" th:field="*{release_date}">
+            </label>
+            <label for="status">
+                Статус
+                <input type="text" name="status" id="status" th:field="*{status}">
+            </label>
+            <label for="adult_check">
+                Только для взрослых
+                <input type="checkbox" name="adult_check" id="adult_check" th:field="*{adult_check}">
             </label>
         </div>
     </form>

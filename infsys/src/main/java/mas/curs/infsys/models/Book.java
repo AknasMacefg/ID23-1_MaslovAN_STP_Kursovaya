@@ -13,7 +13,7 @@ public class Book {
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserWishlist> UserWishlist = new HashSet<>();
@@ -76,11 +76,11 @@ public class Book {
         this.adult_check = adult_check;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
