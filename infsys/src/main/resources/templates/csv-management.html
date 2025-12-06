@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
+<head>
+    <title>Управление CSV - Календарь релизов ИД "Инженерия Данных"</title>
+    <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
+    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
+</head>
+<body>
+<header class="header__nav">
+    <nav class="nav__list">
+        <ul class="header__list">
+            <li>
+                <a href="/">
+                    Главная
+                </a>
+            </li>
+            <li>
+                <a href="/books">
+                    Книги
+                </a>
+            </li>
+            <li>
+                <a href="/authors">
+                    Авторы
+                </a>
+            </li>
+            <li>
+                <a href="/series">
+                    Серии
+                </a>
+            </li>
+            <li>
+                <a href="/genres">
+                    Жанры
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a  href="/users">
+                    Пользователи
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                <a href="/metrics">
+                    Метрики
+                </a>
+            </li>
+        </ul>
+        <form class="search__nav">
+            <label class="search_label" for="search">Поиск: </label>
+            <input class="search_input" type="text" id="search" name="search">
+            <input class="search_submit" type="submit" value="Найти">
+        </form>
+        <ul class="login__nav">
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
+                    Вход
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
+                    Личный профиль
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
+                    Регистрация
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
+                    Выход
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<section class="section_middle">
+    <div class="view-container">
+        <div class="view-card">
+            <div class="view-header">
+                <h1 class="view-title">Управление CSV</h1>
+            </div>
+            
+            <div class="view-content">
+                <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+                <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
+                
+                <div class="view-details">
+                    <h2 style="margin-top: 20px; margin-bottom: 15px;">Экспорт данных</h2>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
+                        <a th:href="@{/admin/csv/export/books}" class="btn btn-edit">Экспорт книг</a>
+                        <a th:href="@{/admin/csv/export/authors}" class="btn btn-edit">Экспорт авторов</a>
+                        <a th:href="@{/admin/csv/export/genres}" class="btn btn-edit">Экспорт жанров</a>
+                        <a th:href="@{/admin/csv/export/series}" class="btn btn-edit">Экспорт серий</a>
+                        <a th:href="@{/admin/csv/export/users}" class="btn btn-edit">Экспорт пользователей</a>
+                    </div>
+                    
+                    <h2 style="margin-top: 20px; margin-bottom: 15px;">Импорт данных</h2>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <form th:action="@{/admin/csv/import/books}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт книг:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать книги</button>
+                        </form>
+                        
+                        <form th:action="@{/admin/csv/import/authors}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт авторов:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать авторов</button>
+                        </form>
+                        
+                        <form th:action="@{/admin/csv/import/genres}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт жанров:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать жанры</button>
+                        </form>
+                        
+                        <form th:action="@{/admin/csv/import/series}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт серий:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать серии</button>
+                        </form>
+                        
+                        <form th:action="@{/admin/csv/import/users}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт пользователей:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать пользователей</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <a class="footer-links" href="/about">
+        О создателе
+    </a>
+    <a class="footer-links" href="/contacts">
+        Контакты
+    </a>
+</footer>
+</body>
+</html>
+

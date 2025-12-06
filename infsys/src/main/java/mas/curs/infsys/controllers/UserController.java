@@ -46,8 +46,16 @@ public class UserController {
      * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
      */
     @GetMapping
-    public String userPage(Model model, @RequestParam(required = false) String msg) {
-        model.addAttribute("users", userService.getAllUsers());
+    public String userPage(Model model, 
+                          @RequestParam(required = false) String msg,
+                          @RequestParam(required = false) String role,
+                          @RequestParam(required = false) String sortBy,
+                          @RequestParam(required = false) String search) {
+        model.addAttribute("users", userService.getUsersFilteredAndSorted(role, sortBy, search));
+        model.addAttribute("allRoles", Arrays.copyOfRange(Role.values(), 0, 3));
+        model.addAttribute("selectedRole", role);
+        model.addAttribute("selectedSortBy", sortBy);
+        model.addAttribute("searchQuery", search);
         model.addAttribute("message", msg);
         return "users";
     }

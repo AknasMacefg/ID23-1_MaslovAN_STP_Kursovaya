@@ -1,6 +1,7 @@
 package mas.curs.infsys.controllers;
 import mas.curs.infsys.models.Author;
 import mas.curs.infsys.services.AuthorService;
+import mas.curs.infsys.services.BookService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
@@ -23,14 +25,16 @@ public class AuthorController {
 
     /** Репозиторий пользователей, обеспечивающий доступ к данным. */
     private final AuthorService authorService;
+    private final BookService bookService;
 
     /**
      * Конструктор контроллера пользователей.
      *
      * @param userRepository репозиторий пользователей
      */
-    public AuthorController(AuthorService authorService) {
+    public AuthorController(AuthorService authorService, BookService bookService) {
         this.authorService = authorService;
+        this.bookService = bookService;
     }
 
     /**
@@ -41,8 +45,22 @@ public class AuthorController {
      * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
      */
     @GetMapping
-    public String authorPage(Model model, @RequestParam(required = false) String msg) {
-        model.addAttribute("authors", authorService.getAllAuthors());
+    public String authorPage(Model model, 
+                            @RequestParam(required = false) String msg,
+                            @RequestParam(required = false) String sortBy,
+                            @RequestParam(required = false) String search,
+                            @RequestParam(defaultValue = "0") int page) {
+        int pageSize = 50;
+        int totalPages = authorService.getTotalPages(sortBy, search, pageSize);
+        List<Author> allAuthors = authorService.getAuthorsSorted(sortBy, search, 0, Integer.MAX_VALUE);
+        
+        model.addAttribute("authors", authorService.getAuthorsSorted(sortBy, search, page, pageSize));
+        model.addAttribute("selectedSortBy", sortBy);
+        model.addAttribute("searchQuery", search);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalItems", allAuthors.size());
+        model.addAttribute("showPagination", allAuthors.size() > pageSize);
         model.addAttribute("message", msg);
         return "authors";
     }
@@ -81,7 +99,7 @@ public class AuthorController {
 
             if (success) {
                 redirectAttributes.addFlashAttribute("success", "Автор успешно обновлен");
-                return "redirect:/authors/" + id;
+                return "redirect:/authors/view/" + id;
             } else {
                 redirectAttributes.addFlashAttribute("error", "Произошла ошибка при обновлении");
                 return "redirect:/authors/edit/" + id;
@@ -92,10 +110,11 @@ public class AuthorController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/view/{id}")
     public String showViewForm(@PathVariable("id") Long id, Model model) {
         Author author = authorService.getAuthorById(id); // Retrieve the existing item
         model.addAttribute("authors", author);
+        model.addAttribute("books", bookService.getBooksByAuthor(id));
         return "view-author"; // Name of your edit Thymeleaf template
     }
 

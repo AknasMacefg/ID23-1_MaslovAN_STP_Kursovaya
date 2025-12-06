@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
+<head>
+    <title>Метрики - Календарь релизов ИД "Инженерия Данных"</title>
+    <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
+    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header class="header__nav">
+    <nav class="nav__list">
+        <ul class="header__list">
+            <li>
+                <a href="/">
+                    Главная
+                </a>
+            </li>
+            <li>
+                <a href="/books">
+                    Книги
+                </a>
+            </li>
+            <li>
+                <a href="/authors">
+                    Авторы
+                </a>
+            </li>
+            <li>
+                <a href="/series">
+                    Серии
+                </a>
+            </li>
+            <li>
+                <a href="/genres">
+                    Жанры
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a  href="/users">
+                    Пользователи
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                <a href="/metrics">
+                    Метрики
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a href="/admin/csv">
+                    CSV Управление
+                </a>
+            </li>
+        </ul>
+        <form class="search__nav">
+            <label class="search_label" for="search">Поиск: </label>
+            <input class="search_input" type="text" id="search" name="search">
+            <input class="search_submit" type="submit" value="Найти">
+        </form>
+        <ul class="login__nav">
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
+                    Вход
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
+                    Личный профиль
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
+                    Регистрация
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
+                    Выход
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<section class="section_middle">
+    <div class="view-container">
+        <div class="view-card">
+            <div class="view-header">
+                <h1 class="view-title">Метрики списка желаний</h1>
+            </div>
+            
+            <div class="view-content">
+                <div class="metrics-container">
+                    <!-- Authors Chart -->
+                    <div class="metrics-chart-section">
+                        <h2 class="metrics-chart-title">Топ авторов в списках желаний</h2>
+                        <div class="chart-container">
+                            <canvas id="authorsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Genres Chart -->
+                    <div class="metrics-chart-section">
+                        <h2 class="metrics-chart-title">Топ жанров в списках желаний</h2>
+                        <div class="chart-container">
+                            <canvas id="genresChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Chart -->
+                    <div class="metrics-chart-section">
+                        <h2 class="metrics-chart-title">Добавления в список желаний по датам</h2>
+                        <div class="chart-container">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <a class="footer-links" href="/about">
+        О создателе
+    </a>
+    <a class="footer-links" href="/contacts">
+        Контакты
+    </a>
+</footer>
+
+<script>
+    // Authors Chart
+    const authorLabels = /*[[${authorLabels}]]*/ [];
+    const authorCounts = /*[[${authorCounts}]]*/ [];
+    
+    const authorsCtx = document.getElementById('authorsChart').getContext('2d');
+    new Chart(authorsCtx, {
+        type: 'bar',
+        data: {
+            labels: authorLabels,
+            datasets: [{
+                label: 'Количество добавлений',
+                data: authorCounts,
+                backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                borderColor: 'rgba(76, 175, 80, 1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Genres Chart
+    const genreLabels = /*[[${genreLabels}]]*/ [];
+    const genreCounts = /*[[${genreCounts}]]*/ [];
+    
+    const genresCtx = document.getElementById('genresChart').getContext('2d');
+    new Chart(genresCtx, {
+        type: 'doughnut',
+        data: {
+            labels: genreLabels,
+            datasets: [{
+                label: 'Количество добавлений',
+                data: genreCounts,
+                backgroundColor: [
+                    'rgba(76, 175, 80, 0.6)',
+                    'rgba(33, 150, 243, 0.6)',
+                    'rgba(255, 152, 0, 0.6)',
+                    'rgba(156, 39, 176, 0.6)',
+                    'rgba(244, 67, 54, 0.6)',
+                    'rgba(0, 188, 212, 0.6)',
+                    'rgba(255, 87, 34, 0.6)',
+                    'rgba(121, 85, 72, 0.6)',
+                    'rgba(63, 81, 181, 0.6)',
+                    'rgba(205, 220, 57, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(76, 175, 80, 1)',
+                    'rgba(33, 150, 243, 1)',
+                    'rgba(255, 152, 0, 1)',
+                    'rgba(156, 39, 176, 1)',
+                    'rgba(244, 67, 54, 1)',
+                    'rgba(0, 188, 212, 1)',
+                    'rgba(255, 87, 34, 1)',
+                    'rgba(121, 85, 72, 1)',
+                    'rgba(63, 81, 181, 1)',
+                    'rgba(205, 220, 57, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+
+    // Timeline Chart
+    const timelineLabels = /*[[${timelineLabels}]]*/ [];
+    const timelineCounts = /*[[${timelineCounts}]]*/ [];
+    
+    const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+    new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+            labels: timelineLabels,
+            datasets: [{
+                label: 'Добавлений в день',
+                data: timelineCounts,
+                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                borderColor: 'rgba(76, 175, 80, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
+

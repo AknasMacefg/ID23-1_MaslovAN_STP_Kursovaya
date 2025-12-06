@@ -44,14 +44,16 @@ public class Book {
     @Column
     private double price;
 
+    @Enumerated(EnumType.STRING)
     @Column (nullable = false)
-    private String language;
+    private Language language;
 
     @Column
     private int pages;
 
+    @Enumerated(EnumType.STRING)
     @Column (nullable = false)
-    private String status;
+    private BookStatus status;
 
     @Column
     private String image_url;
@@ -62,8 +64,8 @@ public class Book {
     public Book() {}
 
     public Book(
-            String title, String description, LocalDate release_date, String isbn, double price, String language,
-            int pages, String status, String image_url, boolean adult_check) {
+            String title, String description, LocalDate release_date, String isbn, double price, Language language,
+            int pages, BookStatus status, String image_url, boolean adult_check) {
         this.title = title;
         this.description = description;
         this.release_date = release_date;
@@ -124,11 +126,11 @@ public class Book {
         this.price = price;
     }
 
-    public String getLanguage() {
+    public Language getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(Language language) {
         this.language = language;
     }
 
@@ -140,11 +142,11 @@ public class Book {
         this.pages = pages;
     }
 
-    public String getStatus() {
+    public BookStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(BookStatus status) {
         this.status = status;
     }
 
@@ -162,5 +164,29 @@ public class Book {
 
     public void setAdult_check(boolean adult_check) {
         this.adult_check = adult_check;
+    }
+
+    public Set<BookAuthor> getBookAuthor() {
+        return BookAuthor;
+    }
+
+    public void setBookAuthor(Set<BookAuthor> BookAuthor) {
+        this.BookAuthor = BookAuthor;
+    }
+
+    public Set<BookGenre> getBookGenre() {
+        return BookGenre;
+    }
+
+    public void setBookGenre(Set<BookGenre> BookGenre) {
+        this.BookGenre = BookGenre;
+    }
+
+    public Set<BookSeries> getBookSeries() {
+        return BookSeries;
+    }
+
+    public void setBookSeries(Set<BookSeries> BookSeries) {
+        this.BookSeries = BookSeries;
     }
 }

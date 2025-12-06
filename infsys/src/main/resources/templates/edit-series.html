@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
-    <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <title>Редактирование серии - Календарь релизов ИД "Инженерия Данных"</title>
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
     <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
 </head>
@@ -78,38 +78,41 @@
 </header>
 
 <section class="section_middle">
-    <div>
-    </div>
-    <form class="grid-container-genres" action="#" method="post" th:object="${series}">
-        <input type="hidden" th:field="*{id}" />
-        <div class="genre-header">
-            <div class="genre-header-flex">
-                <label for="name">
-                    Название
-                    <input type="text" name="name" id="name" th:field="*{name}">
-                </label>
-                <button class="grid-header-a" type="submit">Сохранить</button>
-                <a th:if="${series.id != null}"
-                   class="grid-header-a"
-                   th:href="@{/series/{id}(id=${series.id})}">
-                    Отмена
-                </a>
-                <a th:if="${series.id == null}"
-                   class="grid-header-a"
-                   th:href="@{/series}">
-                    Отмена
-                </a>
+    <div class="view-container">
+        <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+        <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
+        
+        <form class="view-card" action="#" method="post" th:object="${series}">
+            <input type="hidden" th:field="*{id}" />
+            
+            <div class="view-header">
+                <h1 class="view-title">
+                    <input type="text" name="name" id="name" th:field="*{name}" class="edit-title-input" placeholder="Название серии">
+                </h1>
+                <div class="view-actions">
+                    <button class="btn btn-edit" type="submit">Сохранить</button>
+                    <a th:if="${series.id != null}"
+                       class="btn btn-delete"
+                       th:href="@{/series/view/{id}(id=${series.id})}">
+                        Отмена
+                    </a>
+                    <a th:if="${series.id == null}"
+                       class="btn btn-delete"
+                       th:href="@{/series}">
+                        Отмена
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="grid-flex-column">
-            <label for="description">
-                Описание
-                <input type="text" name="description" id="description" th:field="*{description}">
-            </label>
-        </div>
-    </form>
-    <div>
-
+            
+            <div class="view-content">
+                <div class="view-details">
+                    <div class="view-detail-item">
+                        <label for="description" class="detail-label">Описание:</label>
+                        <textarea name="description" id="description" th:field="*{description}" class="edit-textarea" rows="8"></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </section>
 <footer class="footer">

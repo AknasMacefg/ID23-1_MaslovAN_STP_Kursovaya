@@ -78,41 +78,35 @@
 </header>
 
 <section class="section_middle">
-    <div>
-
-    </div>
-    <form action="#" th:action="@{/users/edit/{id}(id=${user.id})}" th:object="${user}" method="post" class="database-table-edit_form auth-form">
-        <h2>Изменение пользователя</h2>
-        <input type="hidden" th:field="*{id}" />
-        <input type="hidden" th:field="*{password}" />
-        <input type="hidden" th:field="*{created_at}" />
-        <div class="input_form">
-            <label for="username">Имя пользователя: </label>
-            <input readonly type="text" id="username" th:field="*{username}" />
-        </div>
-        <div class="input_form">
-            <label for="email">Email: </label>
-            <input readonly type="text" id="email" th:field="*{email}" />
-        </div>
-        <div class="input_form">
-            <label for="roles">Выберите роль:</label>
-            <select id="roles" th:field="*{role}">
-                <!-- Loop through the 'allRoles' list from the controller -->
-                <option th:each="role : ${allRoles}"
-                        th:value="${role}"
-                        th:text="${role.name()}">
-                    NULL
-                </option>
-            </select>
-        </div>
-        <div class="input_form">
-            <button class="auth-form-button" type="submit">Сохранить изменения</button>
-            <a class="input_cancel" href="/users">Отмена</a>
-        </div>
-
-    </form>
-    <div>
-
+    <div class="centered-form-container">
+        <form action="#" th:action="@{/users/edit/{id}(id=${user.id})}" th:object="${user}" method="post" class="centered-form">
+            <h2>Изменение пользователя</h2>
+            <input type="hidden" th:field="*{id}" />
+            <input type="hidden" th:field="*{password}" />
+            <input type="hidden" th:field="*{created_at}" />
+            <div class="form-group">
+                <label for="username">Имя пользователя</label>
+                <input readonly type="text" id="username" th:field="*{username}" />
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input readonly type="text" id="email" th:field="*{email}" />
+            </div>
+            <div class="form-group">
+                <label for="roles">Выберите роль</label>
+                <select id="roles" th:field="*{role}">
+                    <option th:each="role : ${allRoles}"
+                            th:value="${role}"
+                            th:text="${role.name()}">
+                        NULL
+                    </option>
+                </select>
+            </div>
+            <div class="form-group form-actions">
+                <button class="form-submit-btn" type="submit">Сохранить изменения</button>
+                <a class="form-cancel-btn" href="/users">Отмена</a>
+            </div>
+        </form>
     </div>
 </section>
 <footer class="footer">

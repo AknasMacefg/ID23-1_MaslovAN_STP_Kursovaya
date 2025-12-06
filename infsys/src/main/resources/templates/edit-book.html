@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
-    <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <title>Редактирование книги - Календарь релизов ИД "Инженерия Данных"</title>
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
     <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
 </head>
@@ -78,71 +78,153 @@
 </header>
 
 <section class="section_middle">
-    <div>
-    </div>
-    <form class="grid-container-genres" action="#" method="post"
-          th:object="${books}" enctype="multipart/form-data">
-        <input type="hidden" th:field="*{id}" />
-        <div class="genre-header">
-            <div class="genre-header-flex">
-                <label for="title">
-                    Название
-                    <input type="text" name="title" id="title" th:field="*{title}">
-                </label>
-                <button class="grid-header-a" type="submit">Сохранить</button>
-                <a th:if="${books.id != null}"
-                   class="grid-header-a"
-                   th:href="@{/books/{id}(id=${books.id})}"> <!-- Fixed: was series.id -->
-                    Отмена
-                </a>
-                <a th:if="${books.id == null}"
-                   class="grid-header-a"
-                   th:href="@{/books}">
-                    Отмена
-                </a>
+    <div class="view-container">
+        <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+        <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
+        
+        <form class="view-card" action="#" method="post" th:object="${books}" enctype="multipart/form-data">
+            <input type="hidden" th:field="*{id}" />
+            
+            <div class="view-header">
+                <h1 class="view-title">
+                    <input type="text" name="title" id="title" th:field="*{title}" class="edit-title-input" placeholder="Название книги">
+                </h1>
+                <div class="view-actions">
+                    <button class="btn btn-edit" type="submit">Сохранить</button>
+                    <a th:if="${books.id != null}"
+                       class="btn btn-delete"
+                       th:href="@{/books/view/{id}(id=${books.id})}">
+                        Отмена
+                    </a>
+                    <a th:if="${books.id == null}"
+                       class="btn btn-delete"
+                       th:href="@{/books}">
+                        Отмена
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="grid-flex-column">
-            <label for="description">
-                Описание
-                <input type="text" name="description" id="description" th:field="*{description}">
-            </label>
-            <label for="image">
-                Фотография
-                <input type="file" name="image" id="image" accept="image/*">
-            </label>
-            <label for="isbn">
-                ISBN
-                <input type="text" name="isbn" id="isbn" th:field="*{isbn}">
-            </label>
-            <label for="language">
-                Язык
-                <input type="text" name="language" id="language" th:field="*{language}">
-            </label>
-            <label for="pages">
-                Количество страниц
-                <input type="number" name="pages" id="pages" th:field="*{pages}">
-            </label>
-            <label for="price">
-                Цена
-                <input type="number" name="price" id="price" th:field="*{price}">
-            </label>
-            <label for="release_date">
-                Дата выхода
-                <input type="date" name="release_date" id="release_date" th:field="*{release_date}">
-            </label>
-            <label for="status">
-                Статус
-                <input type="text" name="status" id="status" th:field="*{status}">
-            </label>
-            <label for="adult_check">
-                Только для взрослых
-                <input type="checkbox" name="adult_check" id="adult_check" th:field="*{adult_check}">
-            </label>
-        </div>
-    </form>
-    <div>
-
+            
+            <div class="view-content">
+                <div class="view-image-section">
+                    <div class="edit-image-container">
+                        <img class="view-image" th:if="${books.image_url != null and !books.image_url.isEmpty()}" th:src="@{*{image_url}}" alt="Обложка книги">
+                        <div class="edit-image-upload">
+                            <label for="image" class="edit-image-label">Загрузить изображение</label>
+                            <input type="file" name="image" id="image" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="view-badge" th:if="${books.adult_check == true}">18+</div>
+                </div>
+                
+                <div class="view-details">
+                    <div class="view-detail-item">
+                        <label for="description" class="detail-label">Описание:</label>
+                        <textarea name="description" id="description" th:field="*{description}" class="edit-textarea" rows="5"></textarea>
+                    </div>
+                    
+                    <div class="view-detail-row">
+                        <div class="view-detail-item">
+                            <label for="isbn" class="detail-label">ISBN:</label>
+                            <input type="text" name="isbn" id="isbn" th:field="*{isbn}" class="edit-input">
+                        </div>
+                        <div class="view-detail-item">
+                            <label for="language" class="detail-label">Язык:</label>
+                            <select name="language" id="language" class="edit-select">
+                                <option th:each="lang : ${allLanguages}" 
+                                        th:value="${lang.name()}" 
+                                        th:text="${lang.displayName}"
+                                        th:selected="${books.language != null && books.language == lang}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="view-detail-row">
+                        <div class="view-detail-item">
+                            <label for="pages" class="detail-label">Страниц:</label>
+                            <input type="number" name="pages" id="pages" th:field="*{pages}" class="edit-input">
+                        </div>
+                        <div class="view-detail-item">
+                            <label for="price" class="detail-label">Цена:</label>
+                            <input type="number" name="price" id="price" th:field="*{price}" step="0.01" class="edit-input">
+                        </div>
+                    </div>
+                    
+                    <div class="view-detail-row">
+                        <div class="view-detail-item">
+                            <label for="release_date" class="detail-label">Дата выхода:</label>
+                            <input type="date" name="release_date" id="release_date" th:field="*{release_date}" class="edit-input">
+                        </div>
+                        <div class="view-detail-item">
+                            <label for="status" class="detail-label">Статус:</label>
+                            <select name="status" id="status" class="edit-select">
+                                <option th:each="status : ${allStatuses}"
+                                        th:value="${status.name()}"
+                                        th:text="${status.displayName}"
+                                        th:selected="${books.status != null && books.status.name() == status.name()}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="view-detail-item">
+                        <label for="adult_check" class="detail-label">
+                            <input type="checkbox" name="adult_check" id="adult_check" th:field="*{adult_check}">
+                            Только для взрослых
+                        </label>
+                    </div>
+                    
+                    <div class="view-relationships">
+                        <div class="relationship-section">
+                            <label for="authorIds" class="detail-label">Авторы:</label>
+                            <select name="authorIds" id="authorIds" multiple size="5" class="edit-select">
+                                <option th:each="author : ${allAuthors}"
+                                        th:value="${author.id}"
+                                        th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"
+                                        th:selected="${selectedAuthorIds != null && selectedAuthorIds.contains(author.id)}">
+                                </option>
+                            </select>
+                            <small class="edit-hint">Удерживайте Ctrl (или Cmd на Mac) для выбора нескольких авторов</small>
+                            
+                            <label for="mainAuthorId" class="detail-label" style="margin-top: 15px;">Главный автор:</label>
+                            <select name="mainAuthorId" id="mainAuthorId" class="edit-select">
+                                <option value="">-- Выберите главного автора --</option>
+                                <option th:each="author : ${allAuthors}"
+                                        th:value="${author.id}"
+                                        th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"
+                                        th:selected="${mainAuthorId != null && mainAuthorId == author.id}">
+                                </option>
+                            </select>
+                            <small class="edit-hint">Выберите главного автора из списка</small>
+                        </div>
+                        
+                        <div class="relationship-section">
+                            <label for="genreIds" class="detail-label">Жанры:</label>
+                            <select name="genreIds" id="genreIds" multiple size="5" class="edit-select">
+                                <option th:each="genre : ${allGenres}"
+                                        th:value="${genre.id}"
+                                        th:text="${genre.name}"
+                                        th:selected="${selectedGenreIds != null && selectedGenreIds.contains(genre.id)}">
+                                </option>
+                            </select>
+                            <small class="edit-hint">Удерживайте Ctrl (или Cmd на Mac) для выбора нескольких жанров</small>
+                        </div>
+                        
+                        <div class="relationship-section">
+                            <label for="seriesIds" class="detail-label">Серии:</label>
+                            <select name="seriesIds" id="seriesIds" multiple size="5" class="edit-select">
+                                <option th:each="series : ${allSeries}"
+                                        th:value="${series.id}"
+                                        th:text="${series.name}"
+                                        th:selected="${selectedSeriesIds != null && selectedSeriesIds.contains(series.id)}">
+                                </option>
+                            </select>
+                            <small class="edit-hint">Удерживайте Ctrl (или Cmd на Mac) для выбора нескольких серий</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </section>
 <footer class="footer">

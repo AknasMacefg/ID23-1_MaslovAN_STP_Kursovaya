@@ -136,4 +136,12 @@ public class User {
     public void setLogout_at(LocalDateTime logout_at) {
         this.logout_at = logout_at;
     }
+
+    public Set<UserWishlist> getUserWishlist() {
+        return UserWishlist;
+    }
+
+    public void setUserWishlist(Set<UserWishlist> UserWishlist) {
+        this.UserWishlist = UserWishlist;
+    }
 }

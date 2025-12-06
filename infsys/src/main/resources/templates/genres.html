@@ -78,23 +78,69 @@
 </header>
 
 <section class="section_middle">
-    <div>
-
-    </div>
-    <div class="grid-container-genres">
-        <div class="genre-header">
-            <div class="genre-header-flex">
-                <p>Жанры</p>
-                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/genres/edit/new}">Добавить</a>
+    <div class="filter-box">
+        <form method="get" action="/genres" class="filter-form">
+            <h3 class="filter-title">Фильтры и сортировка</h3>
+            
+            <div class="filter-group">
+                <label for="search" class="filter-label">Поиск:</label>
+                <input type="text" 
+                       name="search" 
+                       id="search" 
+                       class="filter-input" 
+                       placeholder="Название, описание..."
+                       th:value="${searchQuery}">
             </div>
-
-        </div>
-        <div class="grid-item-genre" th:each="genre : ${genres}">
-            <a class="genre-a" th:href="@{/genres/{id}(id=${genre.id})}" th:text="${genre.name}"></a>
-        </div>
+            
+            <div class="filter-group">
+                <label for="sortBy" class="filter-label">Сортировать по:</label>
+                <select name="sortBy" id="sortBy" class="filter-select">
+                    <option value="">-- Не сортировать --</option>
+                    <option value="name" th:selected="${selectedSortBy == 'name'}">По названию (А-Я)</option>
+                    <option value="name_desc" th:selected="${selectedSortBy == 'name_desc'}">По названию (Я-А)</option>
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-filter">Применить</button>
+                <a href="/genres" class="btn btn-filter-reset">Сбросить</a>
+            </div>
+        </form>
     </div>
-    <div>
-
+    <div class="content-area">
+        <div class="page-header">
+            <h1>Жанры</h1>
+            <a class="btn btn-add" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/genres/edit/new}">Добавить</a>
+        </div>
+        <div class="genres-grid">
+            <a th:href="@{/genres/view/{id}(id=${genre.id})}" class="genre-card" th:each="genre : ${genres}">
+                <div class="genre-card-content">
+                    <h3 class="genre-name" th:text="${genre.name}"></h3>
+                    <p class="genre-description" th:if="${genre.description != null and !genre.description.isEmpty()}" 
+                       th:text="${#strings.abbreviate(genre.description, 100)}"></p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="pagination" th:if="${showPagination}">
+            <div class="pagination-info">
+                <span th:text="'Показано ' + ${genres.size()} + ' из ' + ${totalItems}"></span>
+            </div>
+            <div class="pagination-controls">
+                <a th:if="${currentPage > 0}" 
+                   th:href="@{/genres(page=${currentPage - 1}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                   class="pagination-btn">Предыдущая</a>
+                <span class="pagination-pages">
+                    <a th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                       th:href="@{/genres(page=${pageNum}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                       th:class="${pageNum == currentPage ? 'pagination-page active' : 'pagination-page'}"
+                       th:text="${pageNum + 1}"></a>
+                </span>
+                <a th:if="${currentPage < totalPages - 1}" 
+                   th:href="@{/genres(page=${currentPage + 1}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                   class="pagination-btn">Следующая</a>
+            </div>
+        </div>
     </div>
 </section>
 <footer class="footer">

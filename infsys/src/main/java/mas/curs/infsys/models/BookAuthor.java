@@ -1,10 +1,11 @@
 package mas.curs.infsys.models;
 
 import jakarta.persistence.*;
-import java.io.Serializable;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table (name = "user_author")
+@Table (name = "book_author")
 public class BookAuthor {
     @EmbeddedId
     private BookAuthorId id;
@@ -17,6 +18,7 @@ public class BookAuthor {
     @ManyToOne
     @MapsId("bookId")
     @JoinColumn(name = "book_id")
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Book book;
 
     @Column
@@ -53,33 +55,12 @@ public class BookAuthor {
     public void setMain_author(boolean main_author) {
         this.main_author = main_author;
     }
-}
 
-@Embeddable
-class BookAuthorId implements Serializable {
-    private Long authorId;
-    private Long bookId;
-
-    public BookAuthorId() {}
-
-    public BookAuthorId(Long authorId, Long bookId) {
-        this.authorId = authorId;
-        this.bookId = bookId;
+    public BookAuthorId getId() {
+        return id;
     }
 
-    public Long getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(Long authorId) {
-        this.authorId = authorId;
-    }
-
-    public Long getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
+    public void setId(BookAuthorId id) {
+        this.id = id;
     }
 }

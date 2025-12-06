@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
+<head>
+    <title>Личный профиль - Календарь релизов ИД "Инженерия Данных"</title>
+    <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
+    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
+</head>
+<body>
+<header class="header__nav">
+    <nav class="nav__list">
+        <ul class="header__list">
+            <li>
+                <a href="/">
+                    Главная
+                </a>
+            </li>
+            <li>
+                <a href="/books">
+                    Книги
+                </a>
+            </li>
+            <li>
+                <a href="/authors">
+                    Авторы
+                </a>
+            </li>
+            <li>
+                <a href="/series">
+                    Серии
+                </a>
+            </li>
+            <li>
+                <a href="/genres">
+                    Жанры
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a  href="/users">
+                    Пользователи
+                </a>
+            </li>
+            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                <a href="/metrics">
+                    Метрики
+                </a>
+            </li>
+        </ul>
+        <form class="search__nav">
+            <label class="search_label" for="search">Поиск: </label>
+            <input class="search_input" type="text" id="search" name="search">
+            <input class="search_submit" type="submit" value="Найти">
+        </form>
+        <ul class="login__nav">
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
+                    Вход
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
+                    Личный профиль
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
+                    Регистрация
+                </a>
+            </li>
+            <li>
+                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
+                    Выход
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<section class="section_middle">
+    <div class="view-container">
+        <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+        <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
+        
+        <div class="view-card" th:object="${user}">
+            <div class="view-header">
+                <h1 class="view-title">Личный профиль</h1>
+            </div>
+            
+            <div class="view-content">
+                <div class="view-details">
+                    <div class="view-detail-item">
+                        <span class="detail-label">Имя пользователя:</span>
+                        <span class="detail-value" th:text="*{username}"></span>
+                    </div>
+                    
+                    <div class="view-detail-item">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value" th:text="*{email}"></span>
+                    </div>
+                    
+                    <div class="view-detail-item">
+                        <span class="detail-label">Роль:</span>
+                        <span class="detail-value status-badge" th:text="*{role}"></span>
+                    </div>
+                    
+                    <div class="view-detail-item">
+                        <span class="detail-label">Email уведомления:</span>
+                        <form th:action="@{/profile/update-notification}" method="post" class="notification-form">
+                            <div class="checkbox-group">
+                                <input type="checkbox" 
+                                       id="email_notification" 
+                                       name="email_notification" 
+                                       th:checked="*{email_notification}">
+                                <label for="email_notification" th:text="${user.email_notification ? 'Включены' : 'Выключены'}"></label>
+                            </div>
+                            <button type="submit" class="btn btn-save-settings">Сохранить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="view-card" th:if="${user.userWishlist != null and !user.userWishlist.isEmpty()}">
+            <div class="view-header">
+                <h2 class="view-title">Список желаний</h2>
+            </div>
+            
+            <div class="wishlist-grid">
+                <div class="wishlist-item" th:each="wishlistItem : ${user.userWishlist}">
+                    <a th:href="@{/books/view/{id}(id=${wishlistItem.book.id})}" class="wishlist-book-link">
+                        <div class="wishlist-book-image">
+                            <img th:src="@{${wishlistItem.book.image_url}}" alt="Обложка книги">
+                        </div>
+                        <div class="wishlist-book-info">
+                            <h3 class="wishlist-book-title" th:text="${wishlistItem.book.title}"></h3>
+                            <p class="wishlist-book-date" th:text="'Добавлено: ' + ${wishlistItem.added_at != null ? #temporals.format(wishlistItem.added_at, 'dd.MM.yyyy') : ''}"></p>
+                        </div>
+                    </a>
+                    <form th:action="@{/profile/wishlist/remove/{bookId}(bookId=${wishlistItem.book.id})}" method="post" class="wishlist-remove-form">
+                        <button type="submit" class="btn btn-wishlist-remove-small">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="view-card" th:if="${user.userWishlist == null or user.userWishlist.isEmpty()}">
+            <div class="view-header">
+                <h2 class="view-title">Список желаний</h2>
+            </div>
+            <div class="view-details">
+                <p class="detail-value">Ваш список желаний пуст</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <a class="footer-links" href="/about">
+        О создателе
+    </a>
+    <a class="footer-links" href="/contacts">
+        Контакты
+    </a>
+</footer>
+</body>
+</html>
+

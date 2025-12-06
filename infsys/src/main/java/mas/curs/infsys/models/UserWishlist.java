@@ -1,8 +1,6 @@
 package mas.curs.infsys.models;
 
 import jakarta.persistence.*;
-
-import java.io.Serializable;
 import java.time.LocalDate;
 
 @Entity
@@ -55,33 +53,12 @@ public class UserWishlist {
     public void setAdded_at(LocalDate added_at) {
         this.added_at = added_at;
     }
-}
 
-@Embeddable
-class UserWishlistId implements Serializable {
-    private Long userId;
-    private Long bookId;
-
-    public UserWishlistId() {}
-
-    public UserWishlistId(Long userId, Long bookId) {
-        this.userId = userId;
-        this.bookId = bookId;
+    public UserWishlistId getId() {
+        return id;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
+    public void setId(UserWishlistId id) {
+        this.id = id;
     }
 }

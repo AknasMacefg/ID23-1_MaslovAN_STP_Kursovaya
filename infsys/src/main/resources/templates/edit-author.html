@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
-    <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <title>Редактирование автора - Календарь релизов ИД "Инженерия Данных"</title>
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
     <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
 </head>
@@ -78,51 +78,53 @@
 </header>
 
 <section class="section_middle">
-    <div>
-    </div>
-    <form class="grid-container-genres" action="#" method="post"
-          th:object="${authors}" enctype="multipart/form-data">
-        <input type="hidden" th:field="*{id}" />
-        <div class="genre-header">
-            <div class="genre-header-flex">
-                <label for="firstname">
-                    Имя
-                    <input type="text" name="firstname" id="firstname" th:field="*{firstname}">
-                </label>
-                <label for="lastname">
-                    Фамилия
-                    <input type="text" name="lastname" id="lastname" th:field="*{lastname}">
-                </label>
-                <label for="middlename">
-                    Отчество
-                    <input type="text" name="middlename" id="middlename" th:field="*{middlename}">
-                </label>
-                <button class="grid-header-a" type="submit">Сохранить</button>
-                <a th:if="${authors.id != null}"
-                   class="grid-header-a"
-                   th:href="@{/authors/{id}(id=${authors.id})}"> <!-- Fixed: was series.id -->
-                    Отмена
-                </a>
-                <a th:if="${authors.id == null}"
-                   class="grid-header-a"
-                   th:href="@{/authors}">
-                    Отмена
-                </a>
+    <div class="view-container">
+        <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+        <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
+        
+        <form class="view-card" action="#" method="post" th:object="${authors}" enctype="multipart/form-data">
+            <input type="hidden" th:field="*{id}" />
+            
+            <div class="view-header">
+                <h1 class="view-title">
+                    <input type="text" name="firstname" id="firstname" th:field="*{firstname}" class="edit-title-input" placeholder="Имя" style="width: 200px;">
+                    <input type="text" name="middlename" id="middlename" th:field="*{middlename}" class="edit-title-input" placeholder="Отчество" style="width: 200px;">
+                    <input type="text" name="lastname" id="lastname" th:field="*{lastname}" class="edit-title-input" placeholder="Фамилия" style="width: 200px;">
+                </h1>
+                <div class="view-actions">
+                    <button class="btn btn-edit" type="submit">Сохранить</button>
+                    <a th:if="${authors.id != null}"
+                       class="btn btn-delete"
+                       th:href="@{/authors/view/{id}(id=${authors.id})}">
+                        Отмена
+                    </a>
+                    <a th:if="${authors.id == null}"
+                       class="btn btn-delete"
+                       th:href="@{/authors}">
+                        Отмена
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="grid-flex-column">
-            <label for="biography">
-                Описание
-                <input type="text" name="biography" id="biography" th:field="*{biography}">
-            </label>
-            <label for="photo">
-                Фотография
-                <input type="file" name="photo" id="photo" accept="image/*">
-            </label>
-        </div>
-    </form>
-    <div>
-
+            
+            <div class="view-content">
+                <div class="view-image-section">
+                    <div class="edit-image-container">
+                        <img class="view-image" th:if="${authors.photo_url != null and !authors.photo_url.isEmpty()}" th:src="@{*{photo_url}}" alt="Фотография автора">
+                        <div class="edit-image-upload">
+                            <label for="photo" class="edit-image-label">Загрузить фотографию</label>
+                            <input type="file" name="photo" id="photo" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="view-details">
+                    <div class="view-detail-item">
+                        <label for="biography" class="detail-label">Биография:</label>
+                        <textarea name="biography" id="biography" th:field="*{biography}" class="edit-textarea" rows="8"></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </section>
 <footer class="footer">

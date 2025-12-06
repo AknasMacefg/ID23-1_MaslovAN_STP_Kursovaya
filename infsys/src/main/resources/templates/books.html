@@ -78,24 +78,120 @@
 </header>
 
 <section class="section_middle">
-    <div>
-
-    </div>
-    <div class="grid-container-genres">
-        <div class="genre-header">
-            <div class="genre-header-flex">
-                <p>Книги</p>
-                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/books/edit/new}">Добавить</a>
+    <div class="filter-box">
+        <form method="get" action="/books" class="filter-form">
+            <h3 class="filter-title">Фильтры и сортировка</h3>
+            
+            <div class="filter-group">
+                <label for="search" class="filter-label">Поиск:</label>
+                <input type="text" 
+                       name="search" 
+                       id="search" 
+                       class="filter-input" 
+                       placeholder="Название, автор, ISBN..."
+                       th:value="${searchQuery}">
             </div>
-
-        </div>
-        <a th:href="@{/books/{id}(id=${book.id})}" class="grid-item-genre" th:each="book : ${books}">
-            <img class="grid-item-img" th:src="@{${book.image_url}}">
-            <p class="genre-a" th:text="${book.title}"></p>
-        </a>
+            
+            <div class="filter-group">
+                <label for="sortBy" class="filter-label">Сортировка:</label>
+                <select name="sortBy" id="sortBy" class="filter-select">
+                    <option value="">-- Не сортировать --</option>
+                    <option value="title" th:selected="${selectedSortBy == 'title'}">По названию (А->Я)</option>
+                    <option value="title_desc" th:selected="${selectedSortBy == 'title_desc'}">По названию (Я->А)</option>
+                    <option value="release_date" th:selected="${selectedSortBy == 'release_date'}">По дате выхода (старые -> новые)</option>
+                    <option value="release_date_desc" th:selected="${selectedSortBy == 'release_date_desc'}">По дате выхода (новые -> старые)</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Жанры:</label>
+                <div class="checkbox-group">
+                    <label th:each="genre : ${allGenres}" class="checkbox-label">
+                        <input type="checkbox" 
+                               name="genreIds" 
+                               th:value="${genre.id}"
+                               th:checked="${selectedGenreIds != null && selectedGenreIds.contains(genre.id)}">
+                        <span th:text="${genre.name}"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Языки:</label>
+                <div class="checkbox-group">
+                    <label th:each="lang : ${allLanguages}" class="checkbox-label">
+                        <input type="checkbox" 
+                               name="languages" 
+                               th:value="${lang.name()}"
+                               th:checked="${selectedLanguages != null && selectedLanguages.contains(lang.name())}">
+                        <span th:text="${lang.displayName}"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" 
+                           name="adultCheck" 
+                           value="true"
+                           th:checked="${selectedAdultCheck != null && selectedAdultCheck == true}">
+                    <span>Только для взрослых</span>
+                </label>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-filter">Применить</button>
+                <a href="/books" class="btn btn-filter-reset">Сбросить</a>
+            </div>
+        </form>
     </div>
-    <div>
-
+    <div class="content-area">
+        <div class="page-header">
+            <h1>Книги</h1>
+            <a class="btn btn-add" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/books/edit/new}">Добавить</a>
+        </div>
+        <div class="books-grid">
+            <a th:href="@{/books/view/{id}(id=${book.id})}" class="book-card" th:each="book : ${books}">
+                <div class="book-card-image">
+                    <img th:src="@{${book.image_url}}" alt="Обложка книги">
+                </div>
+                <div class="book-card-content">
+                    <h3 class="book-title" th:text="${book.title}"></h3>
+                    <p class="book-author" th:if="${book.bookAuthor != null and !book.bookAuthor.isEmpty()}">
+                        <span th:if="${book.bookAuthor != null and !book.bookAuthor.isEmpty()}">
+                            <span th:each="bookAuthor : ${book.bookAuthor}" th:if="${!#lists.contains(book.bookAuthor.?[main_author == true], true) and bookAuthorStat.first}">
+                                <span th:text="${bookAuthor.author.firstname + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}"></span>
+                            </span>
+                        </span>
+                    </p>
+                    <div class="book-status">
+                        <span class="status-badge" th:text="${book.status.displayName}"></span>
+                        <span class="release-date" th:if="${book.status.name() == 'SOON' and book.release_date != null}" 
+                              th:text="${' - ' + #temporals.format(book.release_date, 'dd.MM.yyyy')}"></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="pagination" th:if="${showPagination}">
+            <div class="pagination-info">
+                <span th:text="'Показано ' + ${books.size()} + ' из ' + ${totalItems}"></span>
+            </div>
+            <div class="pagination-controls">
+                <a th:if="${currentPage > 0}" 
+                   th:href="@{/books(page=${currentPage - 1}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck})}"
+                   class="pagination-btn">Предыдущая</a>
+                <span class="pagination-pages">
+                    <a th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                       th:href="@{/books(page=${pageNum}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck})}"
+                       th:class="${pageNum == currentPage ? 'pagination-page active' : 'pagination-page'}"
+                       th:text="${pageNum + 1}"></a>
+                </span>
+                <a th:if="${currentPage < totalPages - 1}" 
+                   th:href="@{/books(page=${currentPage + 1}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck})}"
+                   class="pagination-btn">Следующая</a>
+            </div>
+        </div>
     </div>
 </section>
 <footer class="footer">

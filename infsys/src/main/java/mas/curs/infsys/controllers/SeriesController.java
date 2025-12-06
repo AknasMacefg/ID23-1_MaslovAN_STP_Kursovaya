@@ -2,6 +2,7 @@ package mas.curs.infsys.controllers;
 import mas.curs.infsys.models.Series;
 import mas.curs.infsys.models.User;
 import mas.curs.infsys.services.SeriesService;
+import mas.curs.infsys.services.BookService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,20 +10,23 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Controller
 @RequestMapping("/series")
 public class SeriesController {
     /** Репозиторий пользователей, обеспечивающий доступ к данным. */
     private final SeriesService seriesService;
+    private final BookService bookService;
 
     /**
      * Конструктор контроллера пользователей.
      *
      * @param userRepository репозиторий пользователей
      */
-    public SeriesController(SeriesService seriesService) {
+    public SeriesController(SeriesService seriesService, BookService bookService) {
         this.seriesService = seriesService;
+        this.bookService = bookService;
     }
 
     /**
@@ -33,8 +37,22 @@ public class SeriesController {
      * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
      */
     @GetMapping
-    public String seriesPage(Model model, @RequestParam(required = false) String msg) {
-        model.addAttribute("series", seriesService.getAllSeriess());
+    public String seriesPage(Model model, 
+                             @RequestParam(required = false) String msg,
+                             @RequestParam(required = false) String sortBy,
+                             @RequestParam(required = false) String search,
+                             @RequestParam(defaultValue = "0") int page) {
+        int pageSize = 50;
+        int totalPages = seriesService.getTotalPages(sortBy, search, pageSize);
+        List<Series> allSeries = seriesService.getSeriesSorted(sortBy, search, 0, Integer.MAX_VALUE);
+        
+        model.addAttribute("series", seriesService.getSeriesSorted(sortBy, search, page, pageSize));
+        model.addAttribute("selectedSortBy", sortBy);
+        model.addAttribute("searchQuery", search);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalItems", allSeries.size());
+        model.addAttribute("showPagination", allSeries.size() > pageSize);
         model.addAttribute("message", msg);
         return "series";
     }
@@ -52,17 +70,18 @@ public class SeriesController {
         boolean success = seriesService.updateSeries(seriesDetails);
         if (success) {
             redirectAttributes.addAttribute("id", seriesDetails.getId());
-            return "redirect:/series/{id}"; // Works correctly now
+            return "redirect:/series/view/{id}"; // Works correctly now
         } else {
             model.addAttribute("error", "Данное имя уже занято.");
             return "redirect:/seriess/edit/{id}?error";
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/view/{id}")
     public String showViewForm(@PathVariable("id") Long id, Model model) {
         Series series = seriesService.getSeriesById(id); // Retrieve the existing item
         model.addAttribute("series", series);
+        model.addAttribute("books", bookService.getBooksBySeries(id));
         return "view-series"; // Name of your edit Thymeleaf template
     }
 

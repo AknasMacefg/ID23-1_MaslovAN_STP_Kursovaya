@@ -2,7 +2,10 @@ package mas.curs.infsys.controllers;
 
 import mas.curs.infsys.models.User;
 import mas.curs.infsys.services.UserService;
+import mas.curs.infsys.services.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,9 @@ public class AuthController {
     /** Сервис для выполнения операций с пользователями. */
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private WishlistService wishlistService;
 
     /**
      * Отображает форму регистрации нового пользователя.
@@ -61,5 +67,62 @@ public class AuthController {
     @GetMapping("/login")
     public String showLoginForm() {
         return "login";
+    }
+
+    @GetMapping("/profile")
+    public String showProfile(Model model) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        // Load user with wishlist
+        User user = userService.getUserByIdWithWishlist(currentUser.getId());
+        model.addAttribute("user", user);
+        return "profile";
+    }
+
+    @PostMapping("/profile/update-notification")
+    public String updateEmailNotification(@RequestParam("email_notification") boolean emailNotification,
+                                         RedirectAttributes redirectAttributes) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        userService.updateEmailNotification(currentUser.getId(), emailNotification);
+        redirectAttributes.addFlashAttribute("success", "Настройки уведомлений обновлены");
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/wishlist/remove/{bookId}")
+    public String removeFromWishlist(@PathVariable("bookId") Long bookId,
+                                    RedirectAttributes redirectAttributes) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        boolean success = wishlistService.removeFromWishlist(currentUser.getId(), bookId);
+        if (success) {
+            redirectAttributes.addFlashAttribute("success", "Книга удалена из списка желаний");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Произошла ошибка при удалении");
+        }
+        return "redirect:/profile";
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && 
+            !authentication.getName().equals("anonymousUser")) {
+            try {
+                String email = authentication.getName();
+                return userService.getUserByEmail(email);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 }

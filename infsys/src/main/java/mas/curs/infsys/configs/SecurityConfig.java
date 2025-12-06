@@ -40,6 +40,7 @@ public class SecurityConfig {
     @Autowired
     private CustomAccessDeniedHandler accessDeniedHandler;
 
+
     /**
      * Конфигурирует цепочку фильтров безопасности и правила авторизации.
      * <p>
@@ -80,22 +81,24 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
+    public SecurityFilterChain webSecurity(HttpSecurity http,
+                                          LoginSuccessHandler loginSuccessHandler,
+                                          CustomLogoutSuccessHandler logoutSuccessHandler) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/genres", "/authors", "/series", "/books", "/login", "/register", "/styles/**", "/images/**", "/scripts/**", "/h2-console/**")
+                        .requestMatchers("/", "/genres", "/authors", "/series", "/books", "/books/view/**", "/authors/view/**", "/genres/view/**", "/series/view/**", "/login", "/register", "/styles/**", "/images/**", "/scripts/**", "/h2-console/**", "/error")
                         .permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("email")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(loginSuccessHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutSuccessHandler(logoutSuccessHandler)
                         .permitAll()
                 )
                 .csrf(AbstractHttpConfigurer::disable);

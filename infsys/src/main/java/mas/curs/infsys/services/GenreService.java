@@ -1,16 +1,18 @@
 package mas.curs.infsys.services;
 
+import mas.curs.infsys.models.Book;
 import mas.curs.infsys.models.Genre;
 import mas.curs.infsys.repositories.GenreRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GenreService {
@@ -22,17 +24,73 @@ public class GenreService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Autowired
     private GenreRepository genreRepository;
+    
+    @Autowired
+    @Lazy
+    private BookService bookService;
 
     public List<Genre> getAllGenres()
     {
         return genreRepository.findAll();
     }
 
+    public List<Genre> getGenresSorted(String sortBy, String search, int page, int pageSize) {
+        List<Genre> genres = genreRepository.findAll();
+        
+        // Apply search filter
+        if (search != null && !search.trim().isEmpty()) {
+            String searchLower = search.toLowerCase().trim();
+            genres = genres.stream()
+                .filter(genre -> {
+                    if (genre.getName() != null && genre.getName().toLowerCase().contains(searchLower)) return true;
+                    if (genre.getDescription() != null && genre.getDescription().toLowerCase().contains(searchLower)) return true;
+                    return false;
+                })
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        if (sortBy != null && !sortBy.isEmpty()) {
+            switch (sortBy) {
+                case "name":
+                    genres.sort(Comparator.comparing(Genre::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+                    break;
+                case "name_desc":
+                    genres.sort(Comparator.comparing(Genre::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)).reversed());
+                    break;
+            }
+        }
+        
+        // Apply pagination if more than pageSize items
+        if (genres.size() > pageSize) {
+            int start = page * pageSize;
+            int end = Math.min(start + pageSize, genres.size());
+            if (start < genres.size()) {
+                return genres.subList(start, end);
+            } else {
+                return new java.util.ArrayList<>();
+            }
+        }
+        
+        return genres;
+    }
+    
+    public int getTotalPages(String sortBy, String search, int pageSize) {
+        List<Genre> genres = getGenresSorted(sortBy, search, 0, Integer.MAX_VALUE);
+        return (int) Math.ceil((double) genres.size() / pageSize);
+    }
+
     public Genre getGenreById(long id) {
         return genreRepository.findById(id).get();
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void deleteGenre(Long genreId) {
+        // Remove all BookGenre relationships before deleting the genre
+        List<Book> books = bookService.getBooksByGenre(genreId);
+        for (Book book : books) {
+            book.getBookGenre().removeIf(bg -> bg.getGenre().getId().equals(genreId));
+            bookService.updateBook(book);
+        }
         genreRepository.delete(genreRepository.findById(genreId).get());
     }
 

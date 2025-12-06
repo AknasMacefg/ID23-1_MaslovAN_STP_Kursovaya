@@ -78,32 +78,114 @@
 </header>
 
 <section class="section_middle">
-    <div>
-    </div>
-    <div class="grid-container-genres" th:object="${books}">
-        <div class="genre-header">
-            <div class="genre-header-flex">
-                <p th:text="*{title}"></p>
-                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/books/edit/{id}(id=*{id})}">Изменить</a>
-                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/books/delete/{id}(id=*{id})}">Удалить</a>
+    <div class="view-container">
+        <div class="view-card" th:object="${books}">
+            <div class="view-header">
+                <h1 class="view-title" th:text="*{title}"></h1>
+                <div class="view-actions">
+                    <div class="view-actions-user" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')">
+                        <form th:if="${!inWishlist}" th:action="@{/books/view/{id}/wishlist/add(id=*{id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-wishlist">Добавить в список желаний</button>
+                        </form>
+                        <form th:if="${inWishlist}" th:action="@{/books/view/{id}/wishlist/remove(id=*{id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-wishlist-remove">Удалить из списка желаний</button>
+                        </form>
+                    </div>
+                    <div class="view-actions-admin" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')">
+                        <a class="btn btn-edit" th:href="@{/books/edit/{id}(id=*{id})}">Изменить</a>
+                        <a class="btn btn-delete" th:href="@{/books/delete/{id}(id=*{id})}">Удалить</a>
+                    </div>
+                </div>
             </div>
-
+            
+            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
+            
+            <div class="view-content">
+                <div class="view-image-section">
+                    <img class="view-image" th:src="@{*{image_url}}" alt="Обложка книги">
+                    <div class="view-badge" th:if="${books.adult_check == true}">18+</div>
+                </div>
+                
+                <div class="view-details">
+                    <div class="view-detail-item" th:if="${books.description != null and !books.description.isEmpty()}">
+                        <span class="detail-label">Описание:</span>
+                        <p class="detail-value" th:text="*{description}"></p>
+                    </div>
+                    
+                    <div class="view-detail-row">
+                        <div class="view-detail-item">
+                            <span class="detail-label">ISBN:</span>
+                            <span class="detail-value" th:text="*{isbn}"></span>
+                        </div>
+                        <div class="view-detail-item">
+                            <span class="detail-label">Язык:</span>
+                            <span class="detail-value" th:text="*{language}"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="view-detail-row">
+                        <div class="view-detail-item">
+                            <span class="detail-label">Страниц:</span>
+                            <span class="detail-value" th:text="*{pages}"></span>
+                        </div>
+                        <div class="view-detail-item">
+                            <span class="detail-label">Цена:</span>
+                            <span class="detail-value" th:text="${#numbers.formatDecimal(books.price, 1, 2)} + ' ₽'"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="view-detail-row">
+                        <div class="view-detail-item">
+                            <span class="detail-label">Дата выхода:</span>
+                            <span class="detail-value" th:text="${books.release_date != null ? #temporals.format(books.release_date, 'dd.MM.yyyy') : ''}"></span>
+                        </div>
+                        <div class="view-detail-item">
+                            <span class="detail-label">Статус:</span>
+                            <span class="detail-value status-badge" th:text="*{status.displayName}"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="view-relationships">
+                        <div class="relationship-section" th:if="${books?.bookAuthor != null and !books.bookAuthor.isEmpty()}">
+                            <span class="detail-label">Авторы:</span>
+                            <div class="tag-list">
+                                <a th:each="bookAuthor : ${books.bookAuthor}" 
+                                   class="tag tag-link"
+                                   th:href="@{/authors/view/{id}(id=${bookAuthor?.author?.id})}"
+                                   th:if="${bookAuthor?.author != null}"
+                                   th:text="${(bookAuthor.author.firstname != null ? bookAuthor.author.firstname : '') + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}">
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="relationship-section" th:if="${books?.bookGenre != null and !books.bookGenre.isEmpty()}">
+                            <span class="detail-label">Жанры:</span>
+                            <div class="tag-list">
+                                <a th:each="bookGenre : ${books.bookGenre}" 
+                                   class="tag tag-link"
+                                   th:href="@{/genres/view/{id}(id=${bookGenre?.genre?.id})}"
+                                   th:if="${bookGenre?.genre != null}"
+                                   th:text="${bookGenre.genre.name}">
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="relationship-section" th:if="${books?.bookSeries != null and !books.bookSeries.isEmpty()}">
+                            <span class="detail-label">Серии:</span>
+                            <div class="tag-list">
+                                <a th:each="bookSeries : ${books.bookSeries}" 
+                                   class="tag tag-link"
+                                   th:href="@{/series/view/{id}(id=${bookSeries?.series?.id})}"
+                                   th:if="${bookSeries?.series != null}"
+                                   th:text="${bookSeries.series.name}">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="grid-flex-column">
-            <p th:text="'Описание: ' + *{description}"></p>
-            <p th:text="'ISBN: ' + *{isbn}"></p>
-            <p th:text="'Язык: ' + *{language}"></p>
-            <p th:text="'Количество страниц: ' + *{pages}"></p>
-            <p th:text="'Цена: ' + *{price}"></p>
-            <p th:text="'Дата выхода: ' + *{release_date}"></p>
-            <p th:text="'Cтатус: ' + *{status}"></p>
-            <p th:if="${books.adult_check == true}">Только 18+</p>
-            <p>Обложка: </p>
-            <img  th:src="@{*{image_url}}" alt="Фотография книги" style="max-width: 200px;">
-        </div>
-    </div>
-    <div>
-
     </div>
 </section>
 <footer class="footer">

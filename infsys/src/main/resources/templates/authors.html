@@ -78,24 +78,74 @@
 </header>
 
 <section class="section_middle">
-    <div>
-
-    </div>
-    <div class="grid-container-genres">
-        <div class="genre-header">
-            <div class="genre-header-flex">
-                <p>Авторы</p>
-                <a class="grid-header-a" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/authors/edit/new}">Добавить</a>
+    <div class="filter-box">
+        <form method="get" action="/authors" class="filter-form">
+            <h3 class="filter-title">Фильтры и сортировка</h3>
+            
+            <div class="filter-group">
+                <label for="search" class="filter-label">Поиск:</label>
+                <input type="text" 
+                       name="search" 
+                       id="search" 
+                       class="filter-input" 
+                       placeholder="Имя, фамилия, биография..."
+                       th:value="${searchQuery}">
             </div>
-
-        </div>
-        <a th:href="@{/authors/{id}(id=${author.id})}" class="grid-item-genre" th:each="author : ${authors}">
-            <img class="grid-item-img" th:src="@{${author.photo_url}}">
-            <p class="genre-a"  th:text="${author.firstname + ' ' + author.middlename + ' ' + author.lastname}"></p>
-        </a>
+            
+            <div class="filter-group">
+                <label for="sortBy" class="filter-label">Сортировать по:</label>
+                <select name="sortBy" id="sortBy" class="filter-select">
+                    <option value="">-- Не сортировать --</option>
+                    <option value="fullname" th:selected="${selectedSortBy == 'fullname'}">По полному имени (А-Я)</option>
+                    <option value="fullname_desc" th:selected="${selectedSortBy == 'fullname_desc'}">По полному имени (Я-А)</option>
+                </select>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-filter">Применить</button>
+                <a href="/authors" class="btn btn-filter-reset">Сбросить</a>
+            </div>
+        </form>
     </div>
-    <div>
-
+    <div class="content-area">
+        <div class="page-header">
+            <h1>Авторы</h1>
+            <a class="btn btn-add" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/authors/edit/new}">Добавить</a>
+        </div>
+        <div class="authors-grid">
+            <a th:href="@{/authors/view/{id}(id=${author.id})}" class="author-card" th:each="author : ${authors}">
+                <div class="author-card-image">
+                    <img th:src="@{${author.photo_url}}" alt="Фото автора">
+                </div>
+                <div class="author-card-content">
+                    <p class="author-name">
+                        <span th:text="${author.firstname}"></span>
+                        <span th:if="${author.middlename != null and !author.middlename.isEmpty()}" th:text="' ' + ${author.middlename}"></span>
+                        <span th:if="${author.lastname != null and !author.lastname.isEmpty()}" th:text="' ' + ${author.lastname}"></span>
+                    </p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="pagination" th:if="${showPagination}">
+            <div class="pagination-info">
+                <span th:text="'Показано ' + ${authors.size()} + ' из ' + ${totalItems}"></span>
+            </div>
+            <div class="pagination-controls">
+                <a th:if="${currentPage > 0}" 
+                   th:href="@{/authors(page=${currentPage - 1}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                   class="pagination-btn">Предыдущая</a>
+                <span class="pagination-pages">
+                    <a th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                       th:href="@{/authors(page=${pageNum}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                       th:class="${pageNum == currentPage ? 'pagination-page active' : 'pagination-page'}"
+                       th:text="${pageNum + 1}"></a>
+                </span>
+                <a th:if="${currentPage < totalPages - 1}" 
+                   th:href="@{/authors(page=${currentPage + 1}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                   class="pagination-btn">Следующая</a>
+            </div>
+        </div>
     </div>
 </section>
 <footer class="footer">
