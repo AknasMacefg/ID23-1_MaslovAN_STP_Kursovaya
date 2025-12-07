@@ -10,7 +10,12 @@
 <body>
 <header class="header__nav">
     <nav class="nav__list">
-        <ul class="header__list">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="header__list" id="headerList">
             <li>
                 <a href="/">
                     Главная
@@ -46,13 +51,13 @@
                     Метрики
                 </a>
             </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a href="/admin/csv">
+                    CSV Управление
+                </a>
+            </li>
         </ul>
-        <form class="search__nav">
-            <label class="search_label" for="search">Поиск: </label>
-            <input class="search_input" type="text" id="search" name="search">
-            <input class="search_submit" type="submit" value="Найти">
-        </form>
-        <ul class="login__nav">
+        <ul class="login__nav" id="loginNav">
             <li>
                 <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
                     Вход
@@ -79,10 +84,9 @@
 
 <section class="section_middle">
     <div class="view-container">
-        <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-        <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
-        
         <div class="view-card" th:object="${user}">
+            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
             <div class="view-header">
                 <h1 class="view-title">Личный профиль</h1>
             </div>
@@ -106,15 +110,50 @@
                     
                     <div class="view-detail-item">
                         <span class="detail-label">Email уведомления:</span>
-                        <form th:action="@{/profile/update-notification}" method="post" class="notification-form">
+                        <form th:action="@{/profile/update-notification}" method="post" class="notification-form" id="notificationForm">
+                            <input type="hidden" name="email_notification" id="email_notification_hidden" value="false">
                             <div class="checkbox-group">
                                 <input type="checkbox" 
                                        id="email_notification" 
-                                       name="email_notification" 
-                                       th:checked="*{email_notification}">
-                                <label for="email_notification" th:text="${user.email_notification ? 'Включены' : 'Выключены'}"></label>
+                                       name="email_notification"
+                                       value="true"
+                                       th:checked="${user.email_notification == true}">
+                                <label id="email_notification_label" for="email_notification" th:text="${user.email_notification ? 'Включены' : 'Выключены'}"></label>
                             </div>
                             <button type="submit" class="btn btn-save-settings">Сохранить</button>
+                        </form>
+                    </div>
+                    
+                    <div class="view-detail-item">
+                        <span class="detail-label">Изменить пароль:</span>
+                        <form th:action="@{/profile/change-password}" method="post" class="password-change-form">
+                            <div class="form-group">
+                                <label for="oldPassword" class="form-label">Старый пароль:</label>
+                                <input type="password" 
+                                       id="oldPassword" 
+                                       name="oldPassword" 
+                                       class="form-input" 
+                                       required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword" class="form-label">Новый пароль:</label>
+                                <input type="password" 
+                                       id="newPassword" 
+                                       name="newPassword" 
+                                       class="form-input" 
+                                       required
+                                       minlength="6">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword" class="form-label">Подтвердите новый пароль:</label>
+                                <input type="password" 
+                                       id="confirmPassword" 
+                                       name="confirmPassword" 
+                                       class="form-input" 
+                                       required
+                                       minlength="6">
+                            </div>
+                            <button type="submit" class="btn btn-save-settings">Изменить пароль</button>
                         </form>
                     </div>
                 </div>
@@ -163,6 +202,38 @@
         Контакты
     </a>
 </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const notificationForm = document.getElementById('notificationForm');
+        const emailCheckbox = document.getElementById('email_notification');
+        const hiddenInput = document.getElementById('email_notification_hidden');
+        const emailNotificationLabel = document.getElementById('email_notification_label');
+        
+        if (notificationForm && emailCheckbox && hiddenInput && emailNotificationLabel) {
+            // Update label when checkbox state changes
+            emailCheckbox.addEventListener('change', function() {
+                if (emailCheckbox.checked) {
+                    emailNotificationLabel.textContent = 'Включены';
+                } else {
+                    emailNotificationLabel.textContent = 'Выключены';
+                }
+            });
+            
+            // Handle form submission
+            notificationForm.addEventListener('submit', function(e) {
+                // When checkbox is checked: remove hidden input so only "true" is sent
+                // When checkbox is unchecked: keep hidden input so "false" is sent
+                if (emailCheckbox.checked) {
+                    hiddenInput.remove();
+                } else {
+                    hiddenInput.value = 'false';
+                }
+                // Form will submit with the correct value
+            });
+        }
+    });
+</script>
 </body>
 </html>
 

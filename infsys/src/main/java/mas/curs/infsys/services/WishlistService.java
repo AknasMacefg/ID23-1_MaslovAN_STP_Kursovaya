@@ -75,7 +75,10 @@ public class WishlistService {
 
     public List<UserWishlist> getAllWishlistItems() {
         List<User> users = userRepository.findAll();
+        // Filter to only include users with role USER or ADMIN (for testing)
         return users.stream()
+            .filter(user -> user.getRole() == Role.USER || 
+                           user.getRole() == Role.ADMIN)
             .flatMap(user -> user.getUserWishlist().stream())
             .collect(Collectors.toList());
     }

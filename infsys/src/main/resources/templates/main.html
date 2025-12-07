@@ -5,12 +5,16 @@
 <head>
     <title>Главная - Календарь релизов ИД "Инженерия Данных"</title>
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
-    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
 </head>
 <body>
 <header class="header__nav">
     <nav class="nav__list">
-        <ul class="header__list">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="header__list" id="headerList">
             <li>
                 <a href="/">
                     Главная
@@ -52,12 +56,7 @@
                 </a>
             </li>
         </ul>
-        <form class="search__nav">
-            <label class="search_label" for="search">Поиск: </label>
-            <input class="search_input" type="text" id="search" name="search">
-            <input class="search_submit" type="submit" value="Найти">
-        </form>
-        <ul class="login__nav">
+        <ul class="login__nav" id="loginNav">
             <li>
                 <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
                     Вход
@@ -83,53 +82,38 @@
 </header>
 
 <section class="section_middle">
-    <div class="main-calendar-container">
-        <div class="calendar-sidebar">
-            <h3 class="calendar-sidebar-title">Выберите дату</h3>
-            <div class="calendar-date-menu">
-                <a th:each="date : ${releaseDates}"
-                   th:href="@{/(selectedDate=${date})}"
-                   class="calendar-date-link"
-                   th:classappend="${date.equals(selectedDate) ? 'calendar-date-link-active' : ''}"
-                   th:text="${date.equals(today) ? 'Сегодня - ' + #temporals.format(date, 'dd.MM.yyyy') : #temporals.format(date, 'dd.MM.yyyy')}">
-                </a>
-            </div>
-        </div>
-        
-        <div class="calendar-main-content">
-            <div class="calendar-vertical-carousel" id="calendar-carousel">
-                <div class="calendar-carousel-track">
-                    <div th:each="dateEntry : ${booksByDate}" 
-                         class="calendar-date-row"
-                         th:data-date="${dateEntry.key.toString()}">
-                        <div class="calendar-date-header">
-                            <h2 class="calendar-date-title" 
-                                th:text="${dateEntry.key.equals(today) ? 'Сегодня - ' + #temporals.format(dateEntry.key, 'dd.MM.yyyy') : #temporals.format(dateEntry.key, 'dd.MM.yyyy')}">
-                            </h2>
-                        </div>
-                        <div class="calendar-books-container">
-                            <div th:if="${dateEntry.value.isEmpty()}" class="calendar-no-books">
-                                <p>На эту дату нет запланированных релизов</p>
+    <div class="main-calendar-wrapper">
+        <h1 class="main-calendar-title">Скоро в продаже</h1>
+        <div class="main-calendar-scrollable">
+            <div th:each="dateEntry : ${booksByDate}" 
+                 class="calendar-date-section"
+                 th:data-date="${dateEntry.key.toString()}">
+                <div class="calendar-date-header">
+                    <h2 class="calendar-date-title" 
+                        th:text="${dateEntry.key.equals(today) ? 'Сегодня - ' + #temporals.format(dateEntry.key, 'dd.MM.yyyy') : #temporals.format(dateEntry.key, 'dd.MM.yyyy')}">
+                    </h2>
+                </div>
+                <div class="calendar-books-container">
+                    <div th:if="${dateEntry.value.isEmpty()}" class="calendar-no-books">
+                        <p>На эту дату нет запланированных релизов</p>
+                    </div>
+                    <div th:if="${!dateEntry.value.isEmpty()}" class="calendar-books-grid">
+                        <a th:each="book : ${dateEntry.value}"
+                           th:href="@{/books/view/{id}(id=${book.id})}"
+                           class="calendar-book-card">
+                            <div class="calendar-book-image">
+                                <img th:src="@{${book.image_url}}" alt="Обложка книги">
+                                <span class="adult-marker" th:if="${book.adult_check}">18+</span>
                             </div>
-                            <div th:if="${!dateEntry.value.isEmpty()}" class="calendar-books-grid">
-                                <a th:each="book : ${dateEntry.value}"
-                                   th:href="@{/books/view/{id}(id=${book.id})}"
-                                   class="calendar-book-card">
-                                    <div class="calendar-book-image">
-                                        <img th:src="@{${book.image_url}}" alt="Обложка книги">
-                                        <span class="adult-marker" th:if="${book.adult_check}">18+</span>
-                                    </div>
-                                    <div class="calendar-book-content">
-                                        <h3 class="calendar-book-title" th:text="${book.title}"></h3>
-                                        <p class="calendar-book-author" th:if="${book.bookAuthor != null and !book.bookAuthor.isEmpty()}">
-                                            <span th:each="bookAuthor : ${book.bookAuthor}" th:if="${bookAuthor.main_author == true}">
-                                                <span th:text="${bookAuthor.author.firstname + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}"></span>
-                                            </span>
-                                        </p>
-                                    </div>
-                                </a>
+                            <div class="calendar-book-content">
+                                <h3 class="calendar-book-title" th:text="${book.title}"></h3>
+                                <p class="calendar-book-author" th:if="${book.bookAuthor != null and !book.bookAuthor.isEmpty()}">
+                                    <span th:each="bookAuthor : ${book.bookAuthor}" th:if="${bookAuthor.main_author == true}">
+                                        <span th:text="${bookAuthor.author.firstname + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}"></span>
+                                    </span>
+                                </p>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -146,20 +130,6 @@
     </a>
 </footer>
 
-<script>
-    // Scroll to selected date on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const selectedDateStr = /*[[${selectedDate}]]*/ '';
-        if (selectedDateStr) {
-            const dateRow = document.querySelector('[data-date="' + selectedDateStr + '"]');
-            if (dateRow) {
-                setTimeout(function() {
-                    dateRow.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
-            }
-        }
-    });
-</script>
 </body>
 </html>
 

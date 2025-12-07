@@ -188,7 +188,7 @@ public class AuthorController {
     }
 
     private void deleteOldImage(String oldImagePath) {
-        if (oldImagePath != null && !oldImagePath.isEmpty() && !oldImagePath.equals("/images/books/default.jpg")) {
+        if (oldImagePath != null && !oldImagePath.isEmpty() && !oldImagePath.equals("/images/authors/default.jpg")) {
             try {
                 Path oldFilePath = Paths.get("src/main/resources/static" + oldImagePath);
                 Files.deleteIfExists(oldFilePath);

@@ -5,12 +5,16 @@
 <head>
     <title>Управление CSV - Календарь релизов ИД "Инженерия Данных"</title>
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
-    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
 </head>
 <body>
 <header class="header__nav">
     <nav class="nav__list">
-        <ul class="header__list">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="header__list" id="headerList">
             <li>
                 <a href="/">
                     Главная
@@ -46,13 +50,13 @@
                     Метрики
                 </a>
             </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a href="/admin/csv">
+                    CSV Управление
+                </a>
+            </li>
         </ul>
-        <form class="search__nav">
-            <label class="search_label" for="search">Поиск: </label>
-            <input class="search_input" type="text" id="search" name="search">
-            <input class="search_submit" type="submit" value="Найти">
-        </form>
-        <ul class="login__nav">
+        <ul class="login__nav" id="loginNav">
             <li>
                 <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
                     Вход
@@ -80,14 +84,12 @@
 <section class="section_middle">
     <div class="view-container">
         <div class="view-card">
+            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
             <div class="view-header">
                 <h1 class="view-title">Управление CSV</h1>
             </div>
-            
             <div class="view-content">
-                <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-                <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
-                
                 <div class="view-details">
                     <h2 style="margin-top: 20px; margin-bottom: 15px;">Экспорт данных</h2>
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px;">
@@ -96,6 +98,10 @@
                         <a th:href="@{/admin/csv/export/genres}" class="btn btn-edit">Экспорт жанров</a>
                         <a th:href="@{/admin/csv/export/series}" class="btn btn-edit">Экспорт серий</a>
                         <a th:href="@{/admin/csv/export/users}" class="btn btn-edit">Экспорт пользователей</a>
+                        <a th:href="@{/admin/csv/export/book-authors}" class="btn btn-edit">Экспорт связей книга-автор</a>
+                        <a th:href="@{/admin/csv/export/book-genres}" class="btn btn-edit">Экспорт связей книга-жанр</a>
+                        <a th:href="@{/admin/csv/export/book-series}" class="btn btn-edit">Экспорт связей книга-серия</a>
+                        <a th:href="@{/admin/csv/export/user-wishlist}" class="btn btn-edit">Экспорт списка желаний</a>
                     </div>
                     
                     <h2 style="margin-top: 20px; margin-bottom: 15px;">Импорт данных</h2>
@@ -129,6 +135,30 @@
                             <input type="file" name="file" accept=".csv" required>
                             <button type="submit" class="btn btn-edit">Импортировать пользователей</button>
                         </form>
+                        
+                        <form th:action="@{/admin/csv/import/book-authors}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт связей книга-автор:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать связи книга-автор</button>
+                        </form>
+                        
+                        <form th:action="@{/admin/csv/import/book-genres}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт связей книга-жанр:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать связи книга-жанр</button>
+                        </form>
+                        
+                        <form th:action="@{/admin/csv/import/book-series}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт связей книга-серия:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать связи книга-серия</button>
+                        </form>
+                        
+                        <form th:action="@{/admin/csv/import/user-wishlist}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label>Импорт списка желаний:</label>
+                            <input type="file" name="file" accept=".csv" required>
+                            <button type="submit" class="btn btn-edit">Импортировать список желаний</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -146,4 +176,5 @@
 </footer>
 </body>
 </html>
+
 

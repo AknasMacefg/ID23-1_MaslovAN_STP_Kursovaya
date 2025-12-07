@@ -5,12 +5,16 @@
 <head>
     <title>Календарь релизов ИД "Инженерия Данных"</title>
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
-    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
 </head>
 <body>
 <header class="header__nav">
     <nav class="nav__list">
-        <ul class="header__list">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="header__list" id="headerList">
             <li>
                 <a href="/">
                     Главная
@@ -46,13 +50,13 @@
                     Метрики
                 </a>
             </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a href="/admin/csv">
+                    CSV Управление
+                </a>
+            </li>
         </ul>
-        <form class="search__nav">
-            <label class="search_label" for="search">Поиск: </label>
-            <input class="search_input" type="text" id="search" name="search">
-            <input class="search_submit" type="submit" value="Найти">
-        </form>
-        <ul class="login__nav">
+        <ul class="login__nav" id="loginNav">
             <li>
                 <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
                     Вход
@@ -80,11 +84,15 @@
 <section class="section_middle">
     <div class="view-container">
         <div class="view-card" th:object="${genre}">
+            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
             <div class="view-header">
                 <h1 class="view-title" th:text="*{name}"></h1>
                 <div class="view-actions" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')">
                     <a class="btn btn-edit" th:href="@{/genres/edit/{id}(id=*{id})}">Изменить</a>
-                    <a class="btn btn-delete" th:href="@{/genres/delete/{id}(id=*{id})}">Удалить</a>
+                    <a class="btn btn-delete" 
+                       th:href="@{/genres/delete/{id}(id=*{id})}"
+                       onclick="return confirm('Вы уверены, что хотите удалить этот жанр? Все связи с книгами будут удалены.');">Удалить</a>
                 </div>
             </div>
             
@@ -98,32 +106,28 @@
                 
                 <div class="books-carousel-section" th:if="${books != null and !books.isEmpty()}">
                     <h2 class="carousel-title">Книги этого жанра</h2>
-                    <div class="carousel-container">
-                        <button class="carousel-btn carousel-btn-prev" onclick="moveCarousel('genre-carousel', -1)">‹</button>
-                        <div class="carousel-wrapper" id="genre-carousel">
-                            <div class="carousel-track">
-                                <a th:each="book : ${books}" th:href="@{/books/view/{id}(id=${book.id})}" class="carousel-book-card">
-                                    <div class="carousel-book-image">
-                                        <img th:src="@{${book.image_url}}" alt="Обложка книги">
-                                        <span class="adult-marker" th:if="${book.adult_check}">18+</span>
+                    <div class="carousel-container-scrollable">
+                        <div class="carousel-track-scrollable">
+                            <a th:each="book : ${books}" th:href="@{/books/view/{id}(id=${book.id})}" class="carousel-book-card">
+                                <div class="carousel-book-image">
+                                    <img th:src="@{${book.image_url}}" alt="Обложка книги">
+                                    <span class="adult-marker" th:if="${book.adult_check}">18+</span>
+                                </div>
+                                <div class="carousel-book-content">
+                                    <h3 class="carousel-book-title" th:text="${book.title}"></h3>
+                                    <p class="carousel-book-author" th:if="${book.bookAuthor != null and !book.bookAuthor.isEmpty()}">
+                                        <span th:each="bookAuthor : ${book.bookAuthor}" th:if="${bookAuthor.main_author == true}">
+                                            <span th:text="${bookAuthor.author.firstname + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}"></span>
+                                        </span>
+                                    </p>
+                                    <div class="carousel-book-status">
+                                        <span class="status-badge" th:text="${book.status.displayName}"></span>
+                                        <span class="release-date" th:if="${book.status.name() == 'SOON' and book.release_date != null}" 
+                                              th:text="${' - ' + #temporals.format(book.release_date, 'dd.MM.yyyy')}"></span>
                                     </div>
-                                    <div class="carousel-book-content">
-                                        <h3 class="carousel-book-title" th:text="${book.title}"></h3>
-                                        <p class="carousel-book-author" th:if="${book.bookAuthor != null and !book.bookAuthor.isEmpty()}">
-                                            <span th:each="bookAuthor : ${book.bookAuthor}" th:if="${bookAuthor.main_author == true}">
-                                                <span th:text="${bookAuthor.author.firstname + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}"></span>
-                                            </span>
-                                        </p>
-                                        <div class="carousel-book-status">
-                                            <span class="status-badge" th:text="${book.status.displayName}"></span>
-                                            <span class="release-date" th:if="${book.status.name() == 'SOON' and book.release_date != null}" 
-                                                  th:text="${' - ' + #temporals.format(book.release_date, 'dd.MM.yyyy')}"></span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
+                                </div>
+                            </a>
                         </div>
-                        <button class="carousel-btn carousel-btn-next" onclick="moveCarousel('genre-carousel', 1)">›</button>
                     </div>
                 </div>
             </div>

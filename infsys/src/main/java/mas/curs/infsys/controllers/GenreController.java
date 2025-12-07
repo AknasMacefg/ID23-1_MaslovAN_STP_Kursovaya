@@ -69,11 +69,13 @@ public class GenreController {
     public String updateGenre(@ModelAttribute("genre") Genre genreDetails, Model model, RedirectAttributes redirectAttributes) {
         boolean success = genreService.updateGenre(genreDetails);
         if (success) {
+            redirectAttributes.addFlashAttribute("success", "Жанр успешно обновлен");
             redirectAttributes.addAttribute("id", genreDetails.getId());
-            return "redirect:/genres/view/{id}"; // Works correctly now
+            return "redirect:/genres/view/{id}";
         } else {
-            model.addAttribute("error", "Данное имя уже занято.");
-            return "redirect:/genres/edit/{id}?error";
+            redirectAttributes.addFlashAttribute("error", "Данное имя уже занято");
+            redirectAttributes.addAttribute("id", genreDetails.getId());
+            return "redirect:/genres/edit/{id}";
         }
     }
 

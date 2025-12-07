@@ -189,4 +189,12 @@ public class Book {
     public void setBookSeries(Set<BookSeries> BookSeries) {
         this.BookSeries = BookSeries;
     }
+
+    public Set<UserWishlist> getUserWishlist() {
+        return UserWishlist;
+    }
+
+    public void setUserWishlist(Set<UserWishlist> UserWishlist) {
+        this.UserWishlist = UserWishlist;
+    }
 }

@@ -17,6 +17,9 @@ public class AuthorService {
     @Autowired
     @Lazy
     private BookService bookService;
+    
+    @Autowired
+    private mas.curs.infsys.repositories.BookAuthorRepository bookAuthorRepository;
 
     public List<Author> getAllAuthors()
     {
@@ -86,12 +89,12 @@ public class AuthorService {
 
     @org.springframework.transaction.annotation.Transactional
     public void deleteAuthor(Long authorId) {
-        // Remove all BookAuthor relationships before deleting the author
-        List<Book> books = bookService.getBooksByAuthor(authorId);
-        for (Book book : books) {
-            book.getBookAuthor().removeIf(ba -> ba.getAuthor().getId().equals(authorId));
-            bookService.updateBook(book);
-        }
+        // Delete all BookAuthor relationships using repository
+        List<mas.curs.infsys.models.BookAuthor> bookAuthors = bookAuthorRepository.findAll().stream()
+            .filter(ba -> ba.getAuthor() != null && ba.getAuthor().getId().equals(authorId))
+            .collect(java.util.stream.Collectors.toList());
+        bookAuthorRepository.deleteAll(bookAuthors);
+        
         authorRepository.delete(authorRepository.findById(authorId).get());
     }
 

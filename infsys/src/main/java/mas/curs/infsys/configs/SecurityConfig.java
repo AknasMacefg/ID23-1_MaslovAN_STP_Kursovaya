@@ -1,6 +1,5 @@
 package mas.curs.infsys.configs;
 
-import jakarta.servlet.http.HttpServletRequest;
 import mas.curs.infsys.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 
 /**
  * Конфигурационный класс безопасности Spring Security.
@@ -86,7 +86,7 @@ public class SecurityConfig {
                                           CustomLogoutSuccessHandler logoutSuccessHandler) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/genres", "/authors", "/series", "/books", "/books/view/**", "/authors/view/**", "/genres/view/**", "/series/view/**", "/login", "/register", "/styles/**", "/images/**", "/scripts/**", "/h2-console/**", "/error")
+                        .requestMatchers("/", "/about", "/contacts", "/genres", "/authors", "/series", "/books", "/books/view/**", "/authors/view/**", "/genres/view/**", "/series/view/**", "/login", "/register", "/styles/**", "/images/**", "/scripts/**", "/h2-console/**", "/error")
                         .permitAll()
                         .anyRequest().authenticated()
                 )
@@ -99,7 +99,13 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessHandler(logoutSuccessHandler)
+                        .deleteCookies("remember-me")
                         .permitAll()
+                )
+                .rememberMe(remember -> remember
+                        .rememberMeServices(rememberMeServices())
+                        .key("infsys-remember-me-secret-key-2024")
+                        .tokenValiditySeconds(86400 * 30) // 30 days
                 )
                 .csrf(AbstractHttpConfigurer::disable);
 
@@ -128,5 +134,26 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    /**
+     * Настраивает сервис "Запомнить меня" для сохранения сессии пользователя.
+     * <p>
+     * Использует токен-основанный подход, который сохраняет информацию о пользователе
+     * в cookie браузера. При следующем посещении пользователь будет автоматически аутентифицирован.
+     * </p>
+     *
+     * @return настроенный сервис {@link TokenBasedRememberMeServices}
+     */
+    @Bean
+    public TokenBasedRememberMeServices rememberMeServices() {
+        TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices(
+                "infsys-remember-me-secret-key-2024",
+                userDetailsService
+        );
+        rememberMeServices.setCookieName("remember-me");
+        rememberMeServices.setTokenValiditySeconds(86400 * 30); // 30 days
+        rememberMeServices.setAlwaysRemember(false); // Remember only if checkbox is checked
+        return rememberMeServices;
     }
 }

@@ -76,4 +76,15 @@ public class UserController {
         return "redirect:/users"; // Redirect back to the list page after saving
     }
 
+    @GetMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            userService.deleteUser(id);
+            redirectAttributes.addFlashAttribute("success", "Пользователь успешно удален");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при удалении пользователя: " + e.getMessage());
+        }
+        return "redirect:/users";
+    }
+
 }

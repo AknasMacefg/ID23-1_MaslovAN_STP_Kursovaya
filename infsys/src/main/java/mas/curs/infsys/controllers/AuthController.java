@@ -49,7 +49,21 @@ public class AuthController {
      *         или возврат на форму с сообщением об ошибке, если пользователь уже существует
      */
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
+    public String registerUser(@ModelAttribute("user") User user,
+                               @RequestParam("confirmPassword") String confirmPassword,
+                               RedirectAttributes redirectAttributes) {
+        // Validate password length
+        if (user.getPassword() == null || user.getPassword().length() < 6) {
+            redirectAttributes.addFlashAttribute("error", "Пароль должен содержать минимум 6 символов");
+            return "redirect:/register";
+        }
+        
+        // Validate password confirmation
+        if (!user.getPassword().equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Пароли не совпадают");
+            return "redirect:/register";
+        }
+        
         boolean success = userService.register(user);
         if (success) {
             return "redirect:/login";
@@ -83,15 +97,54 @@ public class AuthController {
     }
 
     @PostMapping("/profile/update-notification")
-    public String updateEmailNotification(@RequestParam("email_notification") boolean emailNotification,
+    public String updateEmailNotification(@RequestParam(value = "email_notification", required = false) String emailNotificationParam,
                                          RedirectAttributes redirectAttributes) {
         User currentUser = getCurrentUser();
         if (currentUser == null) {
             return "redirect:/login";
         }
-
+        
+        // When checkbox is checked: browser sends "true" (checkbox value)
+        // When checkbox is unchecked: browser sends "false" (hidden input)
+        // Convert string to boolean
+        boolean emailNotification = "true".equals(emailNotificationParam);
+        
+        // Always update to ensure the value is saved correctly
         userService.updateEmailNotification(currentUser.getId(), emailNotification);
         redirectAttributes.addFlashAttribute("success", "Настройки уведомлений обновлены");
+        
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/change-password")
+    public String changePassword(@RequestParam("oldPassword") String oldPassword,
+                                @RequestParam("newPassword") String newPassword,
+                                @RequestParam("confirmPassword") String confirmPassword,
+                                RedirectAttributes redirectAttributes) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        // Validate new password and confirmation match
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Новые пароли не совпадают");
+            return "redirect:/profile";
+        }
+
+        // Validate password length
+        if (newPassword.length() < 6) {
+            redirectAttributes.addFlashAttribute("error", "Новый пароль должен содержать минимум 6 символов");
+            return "redirect:/profile";
+        }
+
+        // Change password
+        boolean success = userService.changePassword(currentUser.getId(), oldPassword, newPassword);
+        if (success) {
+            redirectAttributes.addFlashAttribute("success", "Пароль успешно изменен");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Неверный старый пароль");
+        }
         return "redirect:/profile";
     }
 

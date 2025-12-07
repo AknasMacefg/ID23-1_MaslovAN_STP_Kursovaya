@@ -69,11 +69,13 @@ public class SeriesController {
     public String updateSeries(@ModelAttribute("series") Series seriesDetails, Model model, RedirectAttributes redirectAttributes) {
         boolean success = seriesService.updateSeries(seriesDetails);
         if (success) {
+            redirectAttributes.addFlashAttribute("success", "Серия успешно обновлена");
             redirectAttributes.addAttribute("id", seriesDetails.getId());
-            return "redirect:/series/view/{id}"; // Works correctly now
+            return "redirect:/series/view/{id}";
         } else {
-            model.addAttribute("error", "Данное имя уже занято.");
-            return "redirect:/seriess/edit/{id}?error";
+            redirectAttributes.addFlashAttribute("error", "Данное имя уже занято");
+            redirectAttributes.addAttribute("id", seriesDetails.getId());
+            return "redirect:/series/edit/{id}";
         }
     }
 

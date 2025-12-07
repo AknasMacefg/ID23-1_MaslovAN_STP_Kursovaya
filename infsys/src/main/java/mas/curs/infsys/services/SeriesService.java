@@ -28,6 +28,9 @@ public class SeriesService {
     @Autowired
     @Lazy
     private BookService bookService;
+    
+    @Autowired
+    private mas.curs.infsys.repositories.BookSeriesRepository bookSeriesRepository;
 
     public List<Series> getAllSeriess()
     {
@@ -85,12 +88,12 @@ public class SeriesService {
 
     @org.springframework.transaction.annotation.Transactional
     public void deleteSeries(Long seriesId) {
-        // Remove all BookSeries relationships before deleting the series
-        List<Book> books = bookService.getBooksBySeries(seriesId);
-        for (Book book : books) {
-            book.getBookSeries().removeIf(bs -> bs.getSeries().getId().equals(seriesId));
-            bookService.updateBook(book);
-        }
+        // Delete all BookSeries relationships using repository
+        List<mas.curs.infsys.models.BookSeries> bookSeries = bookSeriesRepository.findAll().stream()
+            .filter(bs -> bs.getSeries() != null && bs.getSeries().getId().equals(seriesId))
+            .collect(java.util.stream.Collectors.toList());
+        bookSeriesRepository.deleteAll(bookSeries);
+        
         seriesRepository.delete(seriesRepository.findById(seriesId).get());
     }
 

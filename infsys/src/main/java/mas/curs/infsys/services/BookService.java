@@ -22,6 +22,18 @@ public class BookService {
 
     @Autowired
     private SeriesService seriesService;
+    
+    @Autowired
+    private mas.curs.infsys.repositories.BookAuthorRepository bookAuthorRepository;
+    
+    @Autowired
+    private mas.curs.infsys.repositories.BookGenreRepository bookGenreRepository;
+    
+    @Autowired
+    private mas.curs.infsys.repositories.BookSeriesRepository bookSeriesRepository;
+    
+    @Autowired
+    private mas.curs.infsys.repositories.UserWishlistRepository userWishlistRepository;
 
     public List<Book> getAllBooks()
     {
@@ -127,8 +139,36 @@ public class BookService {
         return bookRepository.findById(id).get();
     }
 
+    @Transactional
     public void deleteBook(Long bookId) {
-        bookRepository.delete(bookRepository.findById(bookId).get());
+        Book book = bookRepository.findById(bookId).orElse(null);
+        if (book != null) {
+            // Delete all BookAuthor relationships using repository
+            List<BookAuthor> bookAuthors = bookAuthorRepository.findAll().stream()
+                .filter(ba -> ba.getBook() != null && ba.getBook().getId().equals(bookId))
+                .collect(Collectors.toList());
+            bookAuthorRepository.deleteAll(bookAuthors);
+            
+            // Delete all BookGenre relationships using repository
+            List<BookGenre> bookGenres = bookGenreRepository.findAll().stream()
+                .filter(bg -> bg.getBook() != null && bg.getBook().getId().equals(bookId))
+                .collect(Collectors.toList());
+            bookGenreRepository.deleteAll(bookGenres);
+            
+            // Delete all BookSeries relationships using repository
+            List<BookSeries> bookSeries = bookSeriesRepository.findAll().stream()
+                .filter(bs -> bs.getBook() != null && bs.getBook().getId().equals(bookId))
+                .collect(Collectors.toList());
+            bookSeriesRepository.deleteAll(bookSeries);
+            
+            // Delete all UserWishlist relationships using repository
+            List<mas.curs.infsys.models.UserWishlist> wishlistItems = userWishlistRepository.findAll().stream()
+                .filter(wl -> wl.getBook() != null && wl.getBook().getId().equals(bookId))
+                .collect(Collectors.toList());
+            userWishlistRepository.deleteAll(wishlistItems);
+            
+            bookRepository.delete(book);
+        }
     }
 
     public boolean addBook(Book book) {
@@ -140,8 +180,33 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    @Transactional
     public boolean updateBook(Book book) {
-        bookRepository.save(book);
+        // Load existing book to preserve relationships (especially UserWishlist)
+        Book existingBook = bookRepository.findById(book.getId()).orElse(null);
+        if (existingBook == null) {
+            return false;
+        }
+        
+        // Preserve UserWishlist relationships
+        Set<UserWishlist> existingWishlist = existingBook.getUserWishlist();
+        
+        // Update all fields from the new book
+        existingBook.setTitle(book.getTitle());
+        existingBook.setDescription(book.getDescription());
+        existingBook.setRelease_date(book.getRelease_date());
+        existingBook.setIsbn(book.getIsbn());
+        existingBook.setPrice(book.getPrice());
+        existingBook.setLanguage(book.getLanguage());
+        existingBook.setPages(book.getPages());
+        existingBook.setStatus(book.getStatus());
+        existingBook.setImage_url(book.getImage_url());
+        existingBook.setAdult_check(book.isAdult_check());
+        
+        // Restore UserWishlist relationships
+        existingBook.setUserWishlist(existingWishlist);
+        
+        bookRepository.save(existingBook);
         return true;
     }
 

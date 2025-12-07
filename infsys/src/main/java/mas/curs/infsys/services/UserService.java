@@ -2,7 +2,6 @@ package mas.curs.infsys.services;
 
 import mas.curs.infsys.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import mas.curs.infsys.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +16,10 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private mas.curs.infsys.repositories.UserWishlistRepository userWishlistRepository;
 
     public List<User> getAllUsers()
     {
@@ -130,8 +132,18 @@ public class UserService {
         return true;
     }
 
-    public void deleteUser(Long petId) {
-        userRepository.delete(userRepository.findById(petId).get());
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            // Delete all UserWishlist entries for this user using repository
+            List<mas.curs.infsys.models.UserWishlist> wishlistItems = userWishlistRepository.findAll().stream()
+                .filter(wl -> wl.getUser() != null && wl.getUser().getId().equals(userId))
+                .collect(java.util.stream.Collectors.toList());
+            userWishlistRepository.deleteAll(wishlistItems);
+            
+            userRepository.delete(user);
+        }
     }
 
     public void addUser(User user) {
@@ -139,13 +151,33 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void updateEmailNotification(Long userId, boolean emailNotification) {
         User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             user.setEmail_notification(emailNotification);
             user.setUpdated_at(LocalDateTime.now());
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
         }
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return false;
+        }
+        
+        // Verify old password
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return false;
+        }
+        
+        // Encode and set new password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdated_at(LocalDateTime.now());
+        userRepository.saveAndFlush(user);
+        return true;
     }
 
     public void updateLoginTime(String email) {

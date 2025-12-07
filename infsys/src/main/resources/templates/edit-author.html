@@ -5,12 +5,16 @@
 <head>
     <title>Редактирование автора - Календарь релизов ИД "Инженерия Данных"</title>
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
-    <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
 </head>
 <body>
 <header class="header__nav">
     <nav class="nav__list">
-        <ul class="header__list">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="header__list" id="headerList">
             <li>
                 <a href="/">
                     Главная
@@ -46,13 +50,13 @@
                     Метрики
                 </a>
             </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a href="/admin/csv">
+                    CSV Управление
+                </a>
+            </li>
         </ul>
-        <form class="search__nav">
-            <label class="search_label" for="search">Поиск: </label>
-            <input class="search_input" type="text" id="search" name="search">
-            <input class="search_submit" type="submit" value="Найти">
-        </form>
-        <ul class="login__nav">
+        <ul class="login__nav" id="loginNav">
             <li>
                 <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
                     Вход
@@ -79,15 +83,16 @@
 
 <section class="section_middle">
     <div class="view-container">
-        <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-        <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
+        
         
         <form class="view-card" action="#" method="post" th:object="${authors}" enctype="multipart/form-data">
             <input type="hidden" th:field="*{id}" />
             
             <div class="view-header">
+                <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+                <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
                 <h1 class="view-title">
-                    <input type="text" name="firstname" id="firstname" th:field="*{firstname}" class="edit-title-input" placeholder="Имя" style="width: 200px;">
+                    <input type="text" required name="firstname" id="firstname" th:field="*{firstname}" class="edit-title-input" placeholder="Имя" style="width: 200px;">
                     <input type="text" name="middlename" id="middlename" th:field="*{middlename}" class="edit-title-input" placeholder="Отчество" style="width: 200px;">
                     <input type="text" name="lastname" id="lastname" th:field="*{lastname}" class="edit-title-input" placeholder="Фамилия" style="width: 200px;">
                 </h1>

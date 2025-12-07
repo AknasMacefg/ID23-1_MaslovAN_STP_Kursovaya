@@ -10,7 +10,12 @@
 <body>
 <header class="header__nav">
     <nav class="nav__list">
-        <ul class="header__list">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="header__list" id="headerList">
             <li>
                 <a href="/">
                     Главная
@@ -46,13 +51,13 @@
                     Метрики
                 </a>
             </li>
+            <li sec:authorize="hasAnyRole('ADMIN')">
+                <a href="/admin/csv">
+                    CSV Управление
+                </a>
+            </li>
         </ul>
-        <form class="search__nav">
-            <label class="search_label" for="search">Поиск: </label>
-            <input class="search_input" type="text" id="search" name="search">
-            <input class="search_submit" type="submit" value="Найти">
-        </form>
-        <ul class="login__nav">
+        <ul class="login__nav" id="loginNav">
             <li>
                 <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
                     Вход
@@ -78,16 +83,16 @@
 </header>
 
 <section class="section_middle">
+    
     <div class="view-container">
-        <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-        <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
         
         <form class="view-card" action="#" method="post" th:object="${books}" enctype="multipart/form-data">
             <input type="hidden" th:field="*{id}" />
-            
+            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
             <div class="view-header">
                 <h1 class="view-title">
-                    <input type="text" name="title" id="title" th:field="*{title}" class="edit-title-input" placeholder="Название книги">
+                    <input required type="text" name="title" id="title" th:field="*{title}" class="edit-title-input" placeholder="Название книги">
                 </h1>
                 <div class="view-actions">
                     <button class="btn btn-edit" type="submit">Сохранить</button>
@@ -113,7 +118,6 @@
                             <input type="file" name="image" id="image" accept="image/*">
                         </div>
                     </div>
-                    <div class="view-badge" th:if="${books.adult_check == true}">18+</div>
                 </div>
                 
                 <div class="view-details">
@@ -124,12 +128,12 @@
                     
                     <div class="view-detail-row">
                         <div class="view-detail-item">
-                            <label for="isbn" class="detail-label">ISBN:</label>
-                            <input type="text" name="isbn" id="isbn" th:field="*{isbn}" class="edit-input">
+                            <label  for="isbn" class="detail-label">ISBN:</label>
+                            <input required type="text" name="isbn" id="isbn" th:field="*{isbn}" class="edit-input">
                         </div>
                         <div class="view-detail-item">
                             <label for="language" class="detail-label">Язык:</label>
-                            <select name="language" id="language" class="edit-select">
+                            <select required name="language" id="language" class="edit-select">
                                 <option th:each="lang : ${allLanguages}" 
                                         th:value="${lang.name()}" 
                                         th:text="${lang.displayName}"
@@ -142,22 +146,22 @@
                     <div class="view-detail-row">
                         <div class="view-detail-item">
                             <label for="pages" class="detail-label">Страниц:</label>
-                            <input type="number" name="pages" id="pages" th:field="*{pages}" class="edit-input">
+                            <input required type="number" name="pages" id="pages" th:field="*{pages}" class="edit-input">
                         </div>
                         <div class="view-detail-item">
                             <label for="price" class="detail-label">Цена:</label>
-                            <input type="number" name="price" id="price" th:field="*{price}" step="0.01" class="edit-input">
+                            <input required type="number" name="price" id="price" th:field="*{price}" step="0.01" class="edit-input">
                         </div>
                     </div>
                     
                     <div class="view-detail-row">
                         <div class="view-detail-item">
                             <label for="release_date" class="detail-label">Дата выхода:</label>
-                            <input type="date" name="release_date" id="release_date" th:field="*{release_date}" class="edit-input">
+                            <input required type="date" name="release_date" id="release_date" th:value="*{release_date}" class="edit-input">
                         </div>
                         <div class="view-detail-item">
                             <label for="status" class="detail-label">Статус:</label>
-                            <select name="status" id="status" class="edit-select">
+                            <select required name="status" id="status" class="edit-select">
                                 <option th:each="status : ${allStatuses}"
                                         th:value="${status.name()}"
                                         th:text="${status.displayName}"
@@ -177,49 +181,79 @@
                     <div class="view-relationships">
                         <div class="relationship-section">
                             <label for="authorIds" class="detail-label">Авторы:</label>
-                            <select name="authorIds" id="authorIds" multiple size="5" class="edit-select">
-                                <option th:each="author : ${allAuthors}"
-                                        th:value="${author.id}"
-                                        th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"
-                                        th:selected="${selectedAuthorIds != null && selectedAuthorIds.contains(author.id)}">
-                                </option>
-                            </select>
-                            <small class="edit-hint">Удерживайте Ctrl (или Cmd на Mac) для выбора нескольких авторов</small>
+                            <div class="multiselect">
+                                <div class="selectBox" onclick="showCheckboxes('authorCheckboxes')">
+                                    <select required class="edit-select">
+                                        <option>Выберите авторов</option>
+                                    </select>
+                                    <div class="overSelect"></div>
+                                </div>
+                                <div id="authorCheckboxes" class="checkboxes" style="display: none;">
+                                    <label th:each="author : ${allAuthors}" class="checkbox-option">
+                                        <input type="checkbox" 
+                                               name="authorIds" 
+                                               class="author-checkbox"
+                                               th:value="${author.id}"
+                                               th:attr="data-author-id=${author.id}"
+                                               th:checked="${selectedAuthorIds != null && selectedAuthorIds.contains(author.id)}">
+                                        <span th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"></span>
+                                    </label>
+                                </div>
+                            </div>
                             
-                            <label for="mainAuthorId" class="detail-label" style="margin-top: 15px;">Главный автор:</label>
-                            <select name="mainAuthorId" id="mainAuthorId" class="edit-select">
+                            <label  for="mainAuthorId" class="detail-label" style="margin-top: 15px;">Главный автор:</label>
+                            <select  required name="mainAuthorId" id="mainAuthorId" class="edit-select">
                                 <option value="">-- Выберите главного автора --</option>
                                 <option th:each="author : ${allAuthors}"
                                         th:value="${author.id}"
+                                        th:attr="data-author-id=${author.id}"
                                         th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"
                                         th:selected="${mainAuthorId != null && mainAuthorId == author.id}">
                                 </option>
                             </select>
-                            <small class="edit-hint">Выберите главного автора из списка</small>
+                            <small class="edit-hint">Выберите главного автора из выбранных авторов</small>
                         </div>
                         
                         <div class="relationship-section">
                             <label for="genreIds" class="detail-label">Жанры:</label>
-                            <select name="genreIds" id="genreIds" multiple size="5" class="edit-select">
-                                <option th:each="genre : ${allGenres}"
-                                        th:value="${genre.id}"
-                                        th:text="${genre.name}"
-                                        th:selected="${selectedGenreIds != null && selectedGenreIds.contains(genre.id)}">
-                                </option>
-                            </select>
-                            <small class="edit-hint">Удерживайте Ctrl (или Cmd на Mac) для выбора нескольких жанров</small>
+                            <div class="multiselect">
+                                <div class="selectBox" onclick="showCheckboxes('genreCheckboxes')">
+                                    <select required class="edit-select">
+                                        <option>Выберите жанры</option>
+                                    </select>
+                                    <div class="overSelect"></div>
+                                </div>
+                                <div id="genreCheckboxes" class="checkboxes" style="display: none;">
+                                    <label th:each="genre : ${allGenres}" class="checkbox-option">
+                                        <input type="checkbox" 
+                                               name="genreIds" 
+                                               th:value="${genre.id}"
+                                               th:checked="${selectedGenreIds != null && selectedGenreIds.contains(genre.id)}">
+                                        <span th:text="${genre.name}"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="relationship-section">
                             <label for="seriesIds" class="detail-label">Серии:</label>
-                            <select name="seriesIds" id="seriesIds" multiple size="5" class="edit-select">
-                                <option th:each="series : ${allSeries}"
-                                        th:value="${series.id}"
-                                        th:text="${series.name}"
-                                        th:selected="${selectedSeriesIds != null && selectedSeriesIds.contains(series.id)}">
-                                </option>
-                            </select>
-                            <small class="edit-hint">Удерживайте Ctrl (или Cmd на Mac) для выбора нескольких серий</small>
+                            <div class="multiselect">
+                                <div class="selectBox" onclick="showCheckboxes('seriesCheckboxes')">
+                                    <select class="edit-select">
+                                        <option>Выберите серии</option>
+                                    </select>
+                                    <div class="overSelect"></div>
+                                </div>
+                                <div id="seriesCheckboxes" class="checkboxes" style="display: none;">
+                                    <label th:each="series : ${allSeries}" class="checkbox-option">
+                                        <input type="checkbox" 
+                                               name="seriesIds" 
+                                               th:value="${series.id}"
+                                               th:checked="${selectedSeriesIds != null && selectedSeriesIds.contains(series.id)}">
+                                        <span th:text="${series.name}"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -235,5 +269,6 @@
         Контакты
     </a>
 </footer>
+
 </body>
 </html>

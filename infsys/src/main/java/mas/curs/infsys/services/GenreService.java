@@ -28,6 +28,9 @@ public class GenreService {
     @Autowired
     @Lazy
     private BookService bookService;
+    
+    @Autowired
+    private mas.curs.infsys.repositories.BookGenreRepository bookGenreRepository;
 
     public List<Genre> getAllGenres()
     {
@@ -85,12 +88,12 @@ public class GenreService {
 
     @org.springframework.transaction.annotation.Transactional
     public void deleteGenre(Long genreId) {
-        // Remove all BookGenre relationships before deleting the genre
-        List<Book> books = bookService.getBooksByGenre(genreId);
-        for (Book book : books) {
-            book.getBookGenre().removeIf(bg -> bg.getGenre().getId().equals(genreId));
-            bookService.updateBook(book);
-        }
+        // Delete all BookGenre relationships using repository
+        List<mas.curs.infsys.models.BookGenre> bookGenres = bookGenreRepository.findAll().stream()
+            .filter(bg -> bg.getGenre() != null && bg.getGenre().getId().equals(genreId))
+            .collect(java.util.stream.Collectors.toList());
+        bookGenreRepository.deleteAll(bookGenres);
+        
         genreRepository.delete(genreRepository.findById(genreId).get());
     }
 
