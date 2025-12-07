@@ -108,10 +108,15 @@ public class GenreService {
 
     public boolean updateGenre(Genre genre) {
         if (genreRepository.existsById(genre.getId())) {
-            if (genreRepository.existsByName(genre.getName().toLowerCase(Locale.ROOT))) {
+            String lowerName = genre.getName().toLowerCase(Locale.ROOT);
+            // Check if name exists, but exclude the current genre being edited
+            java.util.Optional<Genre> existingGenreWithName = genreRepository.findByName(lowerName);
+            
+            if (existingGenreWithName.isPresent() && !existingGenreWithName.get().getId().equals(genre.getId())) {
+                // Name exists and belongs to a different genre
                 return false;
             }
-            genre.setName(genre.getName().toLowerCase(Locale.ROOT));
+            genre.setName(lowerName);
             genreRepository.save(genre);
             return true;
         }

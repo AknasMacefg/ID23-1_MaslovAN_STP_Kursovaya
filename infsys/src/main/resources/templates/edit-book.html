@@ -51,11 +51,6 @@
                     Метрики
                 </a>
             </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a href="/admin/csv">
-                    CSV Управление
-                </a>
-            </li>
         </ul>
         <ul class="login__nav" id="loginNav">
             <li>
@@ -229,7 +224,7 @@
                                                name="genreIds" 
                                                th:value="${genre.id}"
                                                th:checked="${selectedGenreIds != null && selectedGenreIds.contains(genre.id)}">
-                                        <span th:text="${genre.name}"></span>
+                                        <span th:text="${genre.displayName}"></span>
                                     </label>
                                 </div>
                             </div>
@@ -250,7 +245,7 @@
                                                name="seriesIds" 
                                                th:value="${series.id}"
                                                th:checked="${selectedSeriesIds != null && selectedSeriesIds.contains(series.id)}">
-                                        <span th:text="${series.name}"></span>
+                                        <span th:text="${series.displayName}"></span>
                                     </label>
                                 </div>
                             </div>

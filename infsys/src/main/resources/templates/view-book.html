@@ -50,11 +50,6 @@
                     Метрики
                 </a>
             </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a href="/admin/csv">
-                    CSV Управление
-                </a>
-            </li>
         </ul>
         <ul class="login__nav" id="loginNav">
             <li>
@@ -173,7 +168,7 @@
                                    class="tag tag-link"
                                    th:href="@{/genres/view/{id}(id=${bookGenre?.genre?.id})}"
                                    th:if="${bookGenre?.genre != null}"
-                                   th:text="${bookGenre.genre.name}">
+                                   th:text="${bookGenre.genre.displayName}">
                                 </a>
                             </div>
                         </div>
@@ -185,7 +180,7 @@
                                    class="tag tag-link"
                                    th:href="@{/series/view/{id}(id=${bookSeries?.series?.id})}"
                                    th:if="${bookSeries?.series != null}"
-                                   th:text="${bookSeries.series.name}">
+                                   th:text="${bookSeries.series.displayName}">
                                 </a>
                             </div>
                         </div>

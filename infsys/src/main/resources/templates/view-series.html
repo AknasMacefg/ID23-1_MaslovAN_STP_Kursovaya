@@ -50,11 +50,6 @@
                     Метрики
                 </a>
             </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a href="/admin/csv">
-                    CSV Управление
-                </a>
-            </li>
         </ul>
         <ul class="login__nav" id="loginNav">
             <li>
@@ -87,7 +82,7 @@
             <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
             <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
             <div class="view-header">
-                <h1 class="view-title" th:text="*{name}"></h1>
+                <h1 class="view-title" th:text="*{displayName}"></h1>
                 <div class="view-actions" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')">
                     <a class="btn btn-edit" th:href="@{/series/edit/{id}(id=*{id})}">Изменить</a>
                     <a class="btn btn-delete" 
@@ -96,7 +91,7 @@
                 </div>
             </div>
             
-            <div class="view-content">
+            <div class="view-content detail-info-container">
                 <div class="view-details">
                     <div class="view-detail-item" th:if="${series.description != null and !series.description.isEmpty()}">
                         <span class="detail-label">Описание:</span>

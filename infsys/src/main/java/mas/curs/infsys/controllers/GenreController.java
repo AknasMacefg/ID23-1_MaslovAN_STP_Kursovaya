@@ -1,15 +1,12 @@
 package mas.curs.infsys.controllers;
 import mas.curs.infsys.models.Genre;
-import mas.curs.infsys.models.User;
 import mas.curs.infsys.services.GenreService;
 import mas.curs.infsys.services.BookService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -61,6 +58,7 @@ public class GenreController {
     public String showEditForm(@PathVariable("id") Long id, Model model) {
         Genre genre = genreService.getGenreById(id); // Retrieve the existing item
         model.addAttribute("genre", genre);
+        // Flash attributes are automatically available after redirect
         return "edit-genre"; // Name of your edit Thymeleaf template
     }
 
@@ -88,19 +86,23 @@ public class GenreController {
     }
 
     @GetMapping("/edit/new")
-    public String showNewGenreForm(Model model) {
+    public String showNewGenreForm(Model model, @RequestParam(required = false) String error) {
         model.addAttribute("genre", new Genre());
+        if (error != null) {
+            model.addAttribute("error", "Такой жанр уже создан!");
+        }
         return "edit-genre";
     }
 
     @PostMapping("/edit/new")
-    public String addGenre(@ModelAttribute("genre") Genre genre, Model model) {
+    public String addGenre(@ModelAttribute("genre") Genre genre, RedirectAttributes redirectAttributes) {
         boolean success = genreService.addGenre(genre);
         if (success) {
+            redirectAttributes.addFlashAttribute("success", "Жанр успешно создан");
             return "redirect:/genres";
         } else {
-            model.addAttribute("error", "Такой жанр уже создан!");
-            return "redirect:/genres/edit/new?error";
+            redirectAttributes.addFlashAttribute("error", "Такой жанр уже создан!");
+            return "redirect:/genres/edit/new";
         }
     }
 

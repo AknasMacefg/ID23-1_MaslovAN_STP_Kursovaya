@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface GenreRepository extends JpaRepository<Genre, Long> {
 
     boolean existsByName(String name);
+    
+    java.util.Optional<Genre> findByName(String name);
 }

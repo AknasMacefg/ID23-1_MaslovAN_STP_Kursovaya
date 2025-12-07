@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SeriesRepository extends JpaRepository<Series, Long> {
     boolean existsByName(String name);
+    
+    java.util.Optional<Series> findByName(String name);
 }

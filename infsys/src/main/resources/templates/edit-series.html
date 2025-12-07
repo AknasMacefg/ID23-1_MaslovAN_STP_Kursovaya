@@ -50,11 +50,6 @@
                     Метрики
                 </a>
             </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a href="/admin/csv">
-                    CSV Управление
-                </a>
-            </li>
         </ul>
         <ul class="login__nav" id="loginNav">
             <li>
@@ -87,9 +82,9 @@
         
         <form class="view-card" action="#" method="post" th:object="${series}">
             <input type="hidden" th:field="*{id}" />
+            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
+            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
             <div class="view-header">
-                <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-                <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
                 <h1 class="view-title">
                     <input required type="text" name="name" id="name" th:field="*{name}" class="edit-title-input" placeholder="Название серии">
                 </h1>

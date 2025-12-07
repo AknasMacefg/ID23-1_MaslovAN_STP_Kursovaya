@@ -50,4 +50,15 @@ public class Genre {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    /**
+     * Returns the name with first letter capitalized for display purposes.
+     * The name is stored in lowercase in the database.
+     */
+    public String getDisplayName() {
+        if (name == null || name.isEmpty()) {
+            return name;
+        }
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
+    }
 }

@@ -50,11 +50,6 @@
                     Метрики
                 </a>
             </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a href="/admin/csv">
-                    CSV Управление
-                </a>
-            </li>
         </ul>
         <ul class="login__nav" id="loginNav">
             <li>
@@ -119,7 +114,7 @@
         <div class="genres-grid">
             <a th:href="@{/genres/view/{id}(id=${genre.id})}" class="genre-card" th:each="genre : ${genres}">
                 <div class="genre-card-content">
-                    <h3 class="genre-name" th:text="${genre.name}"></h3>
+                    <h3 class="genre-name" th:text="${genre.displayName}"></h3>
                     <p class="genre-description" th:if="${genre.description != null and !genre.description.isEmpty()}" 
                        th:text="${#strings.abbreviate(genre.description, 100)}"></p>
                 </div>

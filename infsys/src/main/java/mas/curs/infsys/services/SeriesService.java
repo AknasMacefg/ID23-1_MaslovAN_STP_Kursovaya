@@ -108,10 +108,15 @@ public class SeriesService {
 
     public boolean updateSeries(Series series) {
         if (seriesRepository.existsById(series.getId())) {
-            if (seriesRepository.existsByName(series.getName().toLowerCase(Locale.ROOT))) {
+            String lowerName = series.getName().toLowerCase(Locale.ROOT);
+            // Check if name exists, but exclude the current series being edited
+            java.util.Optional<Series> existingSeriesWithName = seriesRepository.findByName(lowerName);
+            
+            if (existingSeriesWithName.isPresent() && !existingSeriesWithName.get().getId().equals(series.getId())) {
+                // Name exists and belongs to a different series
                 return false;
             }
-            series.setName(series.getName().toLowerCase(Locale.ROOT));
+            series.setName(lowerName);
             seriesRepository.save(series);
             return true;
         }

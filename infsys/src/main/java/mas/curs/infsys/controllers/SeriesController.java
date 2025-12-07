@@ -1,15 +1,12 @@
 package mas.curs.infsys.controllers;
 import mas.curs.infsys.models.Series;
-import mas.curs.infsys.models.User;
 import mas.curs.infsys.services.SeriesService;
 import mas.curs.infsys.services.BookService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -61,6 +58,7 @@ public class SeriesController {
     public String showEditForm(@PathVariable("id") Long id, Model model) {
         Series series = seriesService.getSeriesById(id); // Retrieve the existing item
         model.addAttribute("series", series);
+        // Flash attributes are automatically available after redirect
         return "edit-series"; // Name of your edit Thymeleaf template
     }
 
@@ -88,19 +86,23 @@ public class SeriesController {
     }
 
     @GetMapping("/edit/new")
-    public String showNewSeriesForm(Model model) {
+    public String showNewSeriesForm(Model model, @RequestParam(required = false) String error) {
         model.addAttribute("series", new Series());
+        if (error != null) {
+            model.addAttribute("error", "Такая серия уже создана!");
+        }
         return "edit-series";
     }
 
     @PostMapping("/edit/new")
-    public String addSeries(@ModelAttribute("series") Series series, Model model) {
+    public String addSeries(@ModelAttribute("series") Series series, RedirectAttributes redirectAttributes) {
         boolean success = seriesService.addSeries(series);
         if (success) {
+            redirectAttributes.addFlashAttribute("success", "Серия успешно создана");
             return "redirect:/series";
         } else {
-            model.addAttribute("error", "Такая серия уже создана!");
-            return "redirect:/series/edit/new?error";
+            redirectAttributes.addFlashAttribute("error", "Такая серия уже создана!");
+            return "redirect:/series/edit/new";
         }
     }
 
