@@ -1,7 +1,7 @@
 
 body {
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: min-content auto min-content;
     height: 100vh;
     grid-gap: 15px;
 }
@@ -264,11 +264,33 @@ body {
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     padding: 20px;
-    height: fit-content;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
     background-color: white;
     position: sticky;
     top: 80px;
     margin-right: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: #4CAF50 #f3f4f6;
+}
+
+.filter-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.filter-box::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+.filter-box::-webkit-scrollbar-thumb {
+    background: #4CAF50;
+    border-radius: 4px;
+}
+
+.filter-box::-webkit-scrollbar-thumb:hover {
+    background: #45a049;
 }
 
 .filter-form {
@@ -456,11 +478,14 @@ body {
     text-decoration: none;
     color: inherit;
     transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-sizing: border-box;
 }
 
 .book-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border-color: #4CAF50;
 }
 
 .book-card-image {
@@ -542,11 +567,14 @@ body {
     text-decoration: none;
     color: inherit;
     transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-sizing: border-box;
 }
 
 .author-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border-color: #4CAF50;
 }
 
 .author-card-image {
@@ -796,7 +824,7 @@ body {
 
 .checkbox-group {
     flex-direction: row;
-    align-items: left;
+    align-items: start;
     gap: 10px;
 }
 
@@ -1575,9 +1603,13 @@ body {
     border-radius: 8px;
     padding: 20px;
     margin-right: 20px;
-    height: fit-content;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
     position: sticky;
     top: 80px;
+    scrollbar-width: thin;
+    scrollbar-color: #4CAF50 #f3f4f6;
 }
 
 .filter-form {
@@ -2003,6 +2035,7 @@ body {
 /* Carousel Styles */
 .books-carousel-section {
     grid-column: span 2;
+    max-width: 100%;
     margin-top: 40px;
     padding-top: 30px;
     border-top: 2px solid #e5e7eb;
@@ -2069,10 +2102,13 @@ body {
     gap: 20px;
     padding-right: 20px;
     min-width: min-content;
+    align-items: stretch;
 }
 
 .carousel-book-card {
     flex: 0 0 200px;
+    max-width: 200px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     background: white;
@@ -2082,11 +2118,14 @@ body {
     text-decoration: none;
     color: inherit;
     transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-sizing: border-box;
 }
 
 .carousel-book-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border-color: #4CAF50;
 }
 
 .carousel-book-image {
@@ -2120,6 +2159,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .carousel-book-title {

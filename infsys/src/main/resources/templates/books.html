@@ -138,6 +138,19 @@
                 </label>
             </div>
             
+            <div class="filter-group">
+                <label class="filter-label">Статус:</label>
+                <div class="checkbox-group">
+                    <label th:each="status : ${allStatuses}" class="checkbox-label">
+                        <input type="checkbox" 
+                               name="statuses" 
+                               th:value="${status.name()}"
+                               th:checked="${selectedStatuses != null && selectedStatuses.contains(status.name())}">
+                        <span th:text="${status.displayName}"></span>
+                    </label>
+                </div>
+            </div>
+            
             <div class="filter-actions">
                 <button type="submit" class="btn btn-filter">Применить</button>
                 <a href="/books" class="btn btn-filter-reset">Сбросить</a>
@@ -179,16 +192,16 @@
             </div>
             <div class="pagination-controls">
                 <a th:if="${currentPage > 0}" 
-                   th:href="@{/books(page=${currentPage - 1}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck})}"
+                   th:href="@{/books(page=${currentPage - 1}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck}, statuses=${selectedStatuses})}"
                    class="pagination-btn">Предыдущая</a>
                 <span class="pagination-pages">
                     <a th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
-                       th:href="@{/books(page=${pageNum}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck})}"
+                       th:href="@{/books(page=${pageNum}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck}, statuses=${selectedStatuses})}"
                        th:class="${pageNum == currentPage ? 'pagination-page active' : 'pagination-page'}"
                        th:text="${pageNum + 1}"></a>
                 </span>
                 <a th:if="${currentPage < totalPages - 1}" 
-                   th:href="@{/books(page=${currentPage + 1}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck})}"
+                   th:href="@{/books(page=${currentPage + 1}, sortBy=${selectedSortBy}, search=${searchQuery}, genreIds=${selectedGenreIds}, languages=${selectedLanguages}, adultCheck=${selectedAdultCheck}, statuses=${selectedStatuses})}"
                    class="pagination-btn">Следующая</a>
             </div>
         </div>

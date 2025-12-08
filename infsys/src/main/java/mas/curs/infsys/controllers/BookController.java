@@ -73,19 +73,22 @@ public class BookController {
                           @RequestParam(required = false) List<Long> genreIds,
                           @RequestParam(required = false) List<String> languages,
                           @RequestParam(required = false) Boolean adultCheck,
+                          @RequestParam(required = false) List<String> statuses,
                           @RequestParam(required = false) String sortBy,
                           @RequestParam(required = false) String search,
                           @RequestParam(defaultValue = "0") int page) {
         int pageSize = 50;
-        int totalPages = bookService.getTotalPages(genreIds, languages, adultCheck, sortBy, search, pageSize);
-        List<Book> allBooks = bookService.getBooksFilteredAndSorted(genreIds, languages, adultCheck, sortBy, search, 0, Integer.MAX_VALUE);
+        int totalPages = bookService.getTotalPages(genreIds, languages, adultCheck, statuses, sortBy, search, pageSize);
+        List<Book> allBooks = bookService.getBooksFilteredAndSorted(genreIds, languages, adultCheck, statuses, sortBy, search, 0, Integer.MAX_VALUE);
         
-        model.addAttribute("books", bookService.getBooksFilteredAndSorted(genreIds, languages, adultCheck, sortBy, search, page, pageSize));
+        model.addAttribute("books", bookService.getBooksFilteredAndSorted(genreIds, languages, adultCheck, statuses, sortBy, search, page, pageSize));
         model.addAttribute("allGenres", genreService.getAllGenres());
         model.addAttribute("allLanguages", mas.curs.infsys.models.Language.values());
+        model.addAttribute("allStatuses", mas.curs.infsys.models.BookStatus.values());
         model.addAttribute("selectedGenreIds", genreIds != null ? genreIds : java.util.Collections.emptyList());
         model.addAttribute("selectedLanguages", languages != null ? languages : java.util.Collections.emptyList());
         model.addAttribute("selectedAdultCheck", adultCheck);
+        model.addAttribute("selectedStatuses", statuses != null ? statuses : java.util.Collections.emptyList());
         model.addAttribute("selectedSortBy", sortBy);
         model.addAttribute("searchQuery", search);
         model.addAttribute("currentPage", page);

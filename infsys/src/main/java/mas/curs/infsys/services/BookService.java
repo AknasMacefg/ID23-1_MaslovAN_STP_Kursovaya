@@ -40,7 +40,7 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public List<Book> getBooksFilteredAndSorted(List<Long> genreIds, List<String> languages, Boolean adultCheck, String sortBy, String search, int page, int pageSize) {
+    public List<Book> getBooksFilteredAndSorted(List<Long> genreIds, List<String> languages, Boolean adultCheck, List<String> statuses, String sortBy, String search, int page, int pageSize) {
         List<Book> books = bookRepository.findAll();
         
         // Apply search filter
@@ -98,6 +98,15 @@ public class BookService {
                 .collect(Collectors.toList());
         }
         
+        if (statuses != null && !statuses.isEmpty()) {
+            books = books.stream()
+                .filter(book -> {
+                    if (book.getStatus() == null) return false;
+                    return statuses.contains(book.getStatus().name());
+                })
+                .collect(Collectors.toList());
+        }
+        
         // Apply sorting
         if (sortBy != null && !sortBy.isEmpty()) {
             switch (sortBy) {
@@ -130,8 +139,8 @@ public class BookService {
         return books;
     }
     
-    public int getTotalPages(List<Long> genreIds, List<String> languages, Boolean adultCheck, String sortBy, String search, int pageSize) {
-        List<Book> books = getBooksFilteredAndSorted(genreIds, languages, adultCheck, sortBy, search, 0, Integer.MAX_VALUE);
+    public int getTotalPages(List<Long> genreIds, List<String> languages, Boolean adultCheck, List<String> statuses, String sortBy, String search, int pageSize) {
+        List<Book> books = getBooksFilteredAndSorted(genreIds, languages, adultCheck, statuses, sortBy, search, 0, Integer.MAX_VALUE);
         return (int) Math.ceil((double) books.size() / pageSize);
     }
 
