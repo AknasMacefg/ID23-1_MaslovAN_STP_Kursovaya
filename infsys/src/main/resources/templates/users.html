@@ -3,204 +3,198 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
 </head>
-<body>
-<header class="header__nav">
-    <nav class="nav__list">
-        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
-            <span></span>
+<body class="d-flex flex-column min-vh-100">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <ul class="header__list" id="headerList">
-            <li>
-                <a href="/">
-                    Главная
-                </a>
-            </li>
-            <li>
-                <a href="/books">
-                    Книги
-                </a>
-            </li>
-            <li>
-                <a href="/authors">
-                    Авторы
-                </a>
-            </li>
-            <li>
-                <a href="/series">
-                    Серии
-                </a>
-            </li>
-            <li>
-                <a href="/genres">
-                    Жанры
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a  href="/users">
-                    Пользователи
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
-                <a href="/metrics">
-                    Метрики
-                </a>
-            </li>
-        </ul>
-        <ul class="login__nav" id="loginNav">
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
-                    Вход
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
-                    Личный профиль
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
-                    Регистрация
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
-                    Выход
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/books">Книги</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/authors">Авторы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/series">Серии</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/genres">Жанры</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN')">
+                    <a class="nav-link" href="/users">Пользователи</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                    <a class="nav-link" href="/metrics">Метрики</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">Вход</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">Личный профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">Регистрация</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">Выход</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-<section class="section_middle">
-    <div class="filter-box">
-        <form method="get" action="/users" class="filter-form">
-            <h3 class="filter-title">Фильтры</h3>
-            
-            <div class="filter-group">
-                <label for="search" class="filter-label">Поиск:</label>
-                <input type="text" 
-                       name="search" 
-                       id="search" 
-                       class="filter-input" 
-                       placeholder="Логин, email..."
-                       th:value="${searchQuery}">
+<main class="container-fluid flex-grow-1 py-4">
+    <div class="row">
+        <div class="col-lg-2 col-md-4 mb-4">
+            <div class="filter-box card">
+                <div class="card-body">
+                    <form method="get" action="/users">
+                        <h3 class="h5 mb-3 pb-2 border-bottom">Фильтры</h3>
+                        
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Поиск:</label>
+                            <input type="text" 
+                                   name="search" 
+                                   id="search" 
+                                   class="form-control" 
+                                   placeholder="Логин, email..."
+                                   th:value="${searchQuery}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Роль:</label>
+                            <select name="role" id="role" class="form-select">
+                                <option value="">-- Все роли --</option>
+                                <option th:each="role : ${allRoles}" 
+                                        th:value="${role}" 
+                                        th:text="${role}"
+                                        th:selected="${selectedRole != null && selectedRole == role.toString()}">
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Применить</button>
+                            <a href="/users" class="btn btn-secondary">Сбросить</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            
-            <div class="filter-group">
-                <label for="role" class="filter-label">Роль:</label>
-                <select name="role" id="role" class="filter-select">
-                    <option value="">-- Все роли --</option>
-                    <option th:each="role : ${allRoles}" 
-                            th:value="${role}" 
-                            th:text="${role}"
-                            th:selected="${selectedRole != null && selectedRole == role.toString()}">
-                    </option>
-                </select>
-            </div>
-            
-            <div class="filter-actions">
-                <button type="submit" class="btn btn-filter">Применить</button>
-                <a href="/users" class="btn btn-filter-reset">Сбросить</a>
-            </div>
-        </form>
-    </div>
-    <div class="content-area">
-        <div class="page-header">
-            <h1>Пользователи</h1>
         </div>
-        <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-        <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
-        <div class="users-table-container">
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th>
-                            <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'username' ? 'username_desc' : 'username'})}" class="sortable-header">
-                                Логин
-                                <span th:if="${selectedSortBy == 'username'}">↑</span>
-                                <span th:if="${selectedSortBy == 'username_desc'}">↓</span>
-                            </a>
-                        </th>
-                        <th>
-                            <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'email' ? 'email_desc' : 'email'})}" class="sortable-header">
-                                Email
-                                <span th:if="${selectedSortBy == 'email'}">↑</span>
-                                <span th:if="${selectedSortBy == 'email_desc'}">↓</span>
-                            </a>
-                        </th>
-                        <th>
-                            <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'role' ? 'role_desc' : 'role'})}" class="sortable-header">
-                                Роль
-                                <span th:if="${selectedSortBy == 'role'}">↑</span>
-                                <span th:if="${selectedSortBy == 'role_desc'}">↓</span>
-                            </a>
-                        </th>
-                        <th>
-                            <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'created_at' ? 'created_at_desc' : 'created_at'})}" class="sortable-header">
-                                Время создания
-                                <span th:if="${selectedSortBy == 'created_at'}">↑</span>
-                                <span th:if="${selectedSortBy == 'created_at_desc'}">↓</span>
-                            </a>
-                        </th>
-                        <th>
-                            <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'updated_at' ? 'updated_at_desc' : 'updated_at'})}" class="sortable-header">
-                                Время изменения
-                                <span th:if="${selectedSortBy == 'updated_at'}">↑</span>
-                                <span th:if="${selectedSortBy == 'updated_at_desc'}">↓</span>
-                            </a>
-                        </th>
-                        <th>
-                            <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'log_in_at' ? 'log_in_at_desc' : 'log_in_at'})}" class="sortable-header">
-                                Время входа
-                                <span th:if="${selectedSortBy == 'log_in_at'}">↑</span>
-                                <span th:if="${selectedSortBy == 'log_in_at_desc'}">↓</span>
-                            </a>
-                        </th>
-                        <th>
-                            <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'logout_at' ? 'logout_at_desc' : 'logout_at'})}" class="sortable-header">
-                                Время выхода
-                                <span th:if="${selectedSortBy == 'logout_at'}">↑</span>
-                                <span th:if="${selectedSortBy == 'logout_at_desc'}">↓</span>
-                            </a>
-                        </th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="user : ${users}">
-                        <td th:text="${user.username}"></td>
-                        <td th:text="${user.email}"></td>
-                        <td>
-                            <span class="role-badge" th:text="${user.role}"></span>
-                        </td>
-                        <td th:text="${user.created_at != null ? #temporals.format(user.created_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
-                        <td th:text="${user.updated_at != null ? #temporals.format(user.updated_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
-                        <td th:text="${user.log_in_at != null ? #temporals.format(user.log_in_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
-                        <td th:text="${user.logout_at != null ? #temporals.format(user.logout_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
-                        <td>
-                            <a class="btn btn-edit-small" th:href="@{/users/edit/{id}(id=${user.id})}">Изменить</a>
-                            <a class="btn btn-delete-small" 
-                               th:href="@{/users/delete/{id}(id=${user.id})}"
-                               onclick="return confirm('Вы уверены, что хотите удалить пользователя? Все записи в списке желаний этого пользователя будут удалены.');">Удалить</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="col-lg-10 col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <h1 class="h2 mb-0">Пользователи</h1>
+            </div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'username' ? 'username_desc' : 'username'})}" class="sortable-header text-decoration-none">
+                                            Логин
+                                            <span th:if="${selectedSortBy == 'username'}">↑</span>
+                                            <span th:if="${selectedSortBy == 'username_desc'}">↓</span>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'email' ? 'email_desc' : 'email'})}" class="sortable-header text-decoration-none">
+                                            Email
+                                            <span th:if="${selectedSortBy == 'email'}">↑</span>
+                                            <span th:if="${selectedSortBy == 'email_desc'}">↓</span>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'role' ? 'role_desc' : 'role'})}" class="sortable-header text-decoration-none">
+                                            Роль
+                                            <span th:if="${selectedSortBy == 'role'}">↑</span>
+                                            <span th:if="${selectedSortBy == 'role_desc'}">↓</span>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'created_at' ? 'created_at_desc' : 'created_at'})}" class="sortable-header text-decoration-none">
+                                            Время создания
+                                            <span th:if="${selectedSortBy == 'created_at'}">↑</span>
+                                            <span th:if="${selectedSortBy == 'created_at_desc'}">↓</span>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'updated_at' ? 'updated_at_desc' : 'updated_at'})}" class="sortable-header text-decoration-none">
+                                            Время изменения
+                                            <span th:if="${selectedSortBy == 'updated_at'}">↑</span>
+                                            <span th:if="${selectedSortBy == 'updated_at_desc'}">↓</span>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'log_in_at' ? 'log_in_at_desc' : 'log_in_at'})}" class="sortable-header text-decoration-none">
+                                            Время входа
+                                            <span th:if="${selectedSortBy == 'log_in_at'}">↑</span>
+                                            <span th:if="${selectedSortBy == 'log_in_at_desc'}">↓</span>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a th:href="@{/users(role=${selectedRole != null ? selectedRole : ''}, sortBy=${selectedSortBy == 'logout_at' ? 'logout_at_desc' : 'logout_at'})}" class="sortable-header text-decoration-none">
+                                            Время выхода
+                                            <span th:if="${selectedSortBy == 'logout_at'}">↑</span>
+                                            <span th:if="${selectedSortBy == 'logout_at_desc'}">↓</span>
+                                        </a>
+                                    </th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="user : ${users}">
+                                    <td th:text="${user.username}"></td>
+                                    <td th:text="${user.email}"></td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${user.role}"></span>
+                                    </td>
+                                    <td th:text="${user.created_at != null ? #temporals.format(user.created_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
+                                    <td th:text="${user.updated_at != null ? #temporals.format(user.updated_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
+                                    <td th:text="${user.log_in_at != null ? #temporals.format(user.log_in_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
+                                    <td th:text="${user.logout_at != null ? #temporals.format(user.logout_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a class="btn btn-sm btn-primary" th:href="@{/users/edit/{id}(id=${user.id})}">Изменить</a>
+                                            <a class="btn btn-sm btn-danger" 
+                                               th:href="@{/users/delete/{id}(id=${user.id})}"
+                                               onclick="return confirm('Вы уверены, что хотите удалить пользователя? Все записи в списке желаний этого пользователя будут удалены.');">Удалить</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</section>
-<footer class="footer">
-    <a class="footer-links" href="/about">
-        О создателе
-    </a>
-    <a class="footer-links" href="/contacts">
-        Контакты
-    </a>
+</main>
+
+<footer class="footer mt-auto">
+    <div class="container-fluid d-flex justify-content-center align-items-center flex-wrap gap-3">
+        <a href="/about">О создателе</a>
+        <a href="/contacts">Контакты</a>
+    </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

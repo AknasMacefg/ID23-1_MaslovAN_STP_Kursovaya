@@ -3,157 +3,160 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
 </head>
-<body>
-<header class="header__nav">
-    <nav class="nav__list">
-        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
-            <span></span>
+<body class="d-flex flex-column min-vh-100">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <ul class="header__list" id="headerList">
-            <li>
-                <a href="/">
-                    Главная
-                </a>
-            </li>
-            <li>
-                <a href="/books">
-                    Книги
-                </a>
-            </li>
-            <li>
-                <a href="/authors">
-                    Авторы
-                </a>
-            </li>
-            <li>
-                <a href="/series">
-                    Серии
-                </a>
-            </li>
-            <li>
-                <a href="/genres">
-                    Жанры
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a  href="/users">
-                    Пользователи
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
-                <a href="/metrics">
-                    Метрики
-                </a>
-            </li>
-        </ul>
-        <ul class="login__nav" id="loginNav">
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
-                    Вход
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
-                    Личный профиль
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
-                    Регистрация
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
-                    Выход
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/books">Книги</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/authors">Авторы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/series">Серии</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/genres">Жанры</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN')">
+                    <a class="nav-link" href="/users">Пользователи</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                    <a class="nav-link" href="/metrics">Метрики</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">Вход</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">Личный профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">Регистрация</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">Выход</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-<section class="section_middle">
-    <div class="filter-box">
-        <form method="get" action="/authors" class="filter-form">
-            <h3 class="filter-title">Фильтры и сортировка</h3>
-            
-            <div class="filter-group">
-                <label for="search" class="filter-label">Поиск:</label>
-                <input type="text" 
-                       name="search" 
-                       id="search" 
-                       class="filter-input" 
-                       placeholder="Имя, фамилия, биография..."
-                       th:value="${searchQuery}">
-            </div>
-            
-            <div class="filter-group">
-                <label for="sortBy" class="filter-label">Сортировать по:</label>
-                <select name="sortBy" id="sortBy" class="filter-select">
-                    <option value="">-- Не сортировать --</option>
-                    <option value="fullname" th:selected="${selectedSortBy == 'fullname'}">По полному имени (А-Я)</option>
-                    <option value="fullname_desc" th:selected="${selectedSortBy == 'fullname_desc'}">По полному имени (Я-А)</option>
-                </select>
-            </div>
-            
-            <div class="filter-actions">
-                <button type="submit" class="btn btn-filter">Применить</button>
-                <a href="/authors" class="btn btn-filter-reset">Сбросить</a>
-            </div>
-        </form>
-    </div>
-    <div class="content-area">
-        <div class="page-header">
-            <h1>Авторы</h1>
-            <a class="btn btn-add" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/authors/edit/new}">Добавить</a>
-        </div>
-        <div class="authors-grid">
-            <a th:href="@{/authors/view/{id}(id=${author.id})}" class="author-card" th:each="author : ${authors}">
-                <div class="author-card-image">
-                    <img th:src="@{${author.photo_url}}" alt="Фото автора">
+<main class="container-fluid flex-grow-1 py-4">
+    <div class="row">
+        <div class="col-lg-2 col-md-4 mb-4">
+            <div class="filter-box card">
+                <div class="card-body">
+                    <form method="get" action="/authors">
+                        <h3 class="h5 mb-3 pb-2 border-bottom">Фильтры и сортировка</h3>
+                        
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Поиск:</label>
+                            <input type="text" 
+                                   name="search" 
+                                   id="search" 
+                                   class="form-control" 
+                                   placeholder="Имя, фамилия, биография..."
+                                   th:value="${searchQuery}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sortBy" class="form-label">Сортировать по:</label>
+                            <select name="sortBy" id="sortBy" class="form-select">
+                                <option value="">-- Не сортировать --</option>
+                                <option value="fullname" th:selected="${selectedSortBy == 'fullname'}">По полному имени (А-Я)</option>
+                                <option value="fullname_desc" th:selected="${selectedSortBy == 'fullname_desc'}">По полному имени (Я-А)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Применить</button>
+                            <a href="/authors" class="btn btn-secondary">Сбросить</a>
+                        </div>
+                    </form>
                 </div>
-                <div class="author-card-content">
-                    <p class="author-name">
-                        <span th:text="${author.firstname}"></span>
-                        <span th:if="${author.middlename != null and !author.middlename.isEmpty()}" th:text="' ' + ${author.middlename}"></span>
-                        <span th:if="${author.lastname != null and !author.lastname.isEmpty()}" th:text="' ' + ${author.lastname}"></span>
-                    </p>
-                </div>
-            </a>
+            </div>
         </div>
-        
-        <div class="pagination" th:if="${showPagination}">
-            <div class="pagination-info">
-                <span th:text="'Показано ' + ${authors.size()} + ' из ' + ${totalItems}"></span>
+        <div class="col-lg-10 col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <h1 class="h2 mb-0">Авторы</h1>
+                <a class="btn btn-primary" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')" th:href="@{/authors/edit/new}">Добавить</a>
             </div>
-            <div class="pagination-controls">
-                <a th:if="${currentPage > 0}" 
-                   th:href="@{/authors(page=${currentPage - 1}, sortBy=${selectedSortBy}, search=${searchQuery})}"
-                   class="pagination-btn">Предыдущая</a>
-                <span class="pagination-pages">
-                    <a th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
-                       th:href="@{/authors(page=${pageNum}, sortBy=${selectedSortBy}, search=${searchQuery})}"
-                       th:class="${pageNum == currentPage ? 'pagination-page active' : 'pagination-page'}"
-                       th:text="${pageNum + 1}"></a>
-                </span>
-                <a th:if="${currentPage < totalPages - 1}" 
-                   th:href="@{/authors(page=${currentPage + 1}, sortBy=${selectedSortBy}, search=${searchQuery})}"
-                   class="pagination-btn">Следующая</a>
+            <div class="row g-4">
+                <div th:each="author : ${authors}" class="col-6 col-md-4 col-lg-3 col-xl-2">
+                    <a th:href="@{/authors/view/{id}(id=${author.id})}" class="text-decoration-none text-dark">
+                        <div class="card h-100">
+                            <img th:src="@{${author.photo_url}}" class="card-img-top" alt="Фото автора" style="height: 240px; object-fit: cover;">
+                            <div class="card-body text-center">
+                                <p class="card-text mb-0">
+                                    <span th:text="${author.firstname}"></span>
+                                    <span th:if="${author.middlename != null and !author.middlename.isEmpty()}" th:text="' ' + ${author.middlename}"></span>
+                                    <span th:if="${author.lastname != null and !author.lastname.isEmpty()}" th:text="' ' + ${author.lastname}"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
             </div>
+            
+            <nav th:if="${showPagination}" class="mt-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex flex-column align-items-center gap-3">
+                            <div class="text-muted small">
+                                <span th:text="'Показано ' + ${authors.size()} + ' из ' + ${totalItems}"></span>
+                            </div>
+                            <ul class="pagination mb-0">
+                                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                                    <a th:if="${currentPage > 0}" 
+                                       th:href="@{/authors(page=${currentPage - 1}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                                       class="page-link">Предыдущая</a>
+                                    <span th:if="${currentPage == 0}" class="page-link">Предыдущая</span>
+                                </li>
+                                <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}" 
+                                    class="page-item" 
+                                    th:classappend="${pageNum == currentPage ? 'active' : ''}">
+                                    <a th:href="@{/authors(page=${pageNum}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                                       class="page-link"
+                                       th:text="${pageNum + 1}"></a>
+                                </li>
+                                <li class="page-item" th:classappend="${currentPage >= totalPages - 1 ? 'disabled' : ''}">
+                                    <a th:if="${currentPage < totalPages - 1}" 
+                                       th:href="@{/authors(page=${currentPage + 1}, sortBy=${selectedSortBy}, search=${searchQuery})}"
+                                       class="page-link">Следующая</a>
+                                    <span th:if="${currentPage >= totalPages - 1}" class="page-link">Следующая</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
         </div>
     </div>
-</section>
-<footer class="footer">
-    <a class="footer-links" href="/about">
-        О создателе
-    </a>
-    <a class="footer-links" href="/contacts">
-        Контакты
-    </a>
+</main>
+
+<footer class="footer mt-auto">
+    <div class="container-fluid d-flex justify-content-center align-items-center flex-wrap gap-3">
+        <a href="/about">О создателе</a>
+        <a href="/contacts">Контакты</a>
+    </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

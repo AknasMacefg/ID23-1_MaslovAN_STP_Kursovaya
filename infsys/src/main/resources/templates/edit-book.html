@@ -3,267 +3,361 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактирование книги - Календарь релизов ИД "Инженерия Данных"</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
     <script src="../static/scripts/script.js" th:src="@{/scripts/script.js}"></script>
 </head>
-<body>
-<header class="header__nav">
-    <nav class="nav__list">
-        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
-            <span></span>
+<body class="d-flex flex-column min-vh-100">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <ul class="header__list" id="headerList">
-            <li>
-                <a href="/">
-                    Главная
-                </a>
-            </li>
-            <li>
-                <a href="/books">
-                    Книги
-                </a>
-            </li>
-            <li>
-                <a href="/authors">
-                    Авторы
-                </a>
-            </li>
-            <li>
-                <a href="/series">
-                    Серии
-                </a>
-            </li>
-            <li>
-                <a href="/genres">
-                    Жанры
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a  href="/users">
-                    Пользователи
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
-                <a href="/metrics">
-                    Метрики
-                </a>
-            </li>
-        </ul>
-        <ul class="login__nav" id="loginNav">
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
-                    Вход
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
-                    Личный профиль
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
-                    Регистрация
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
-                    Выход
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/books">Книги</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/authors">Авторы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/series">Серии</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/genres">Жанры</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN')">
+                    <a class="nav-link" href="/users">Пользователи</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                    <a class="nav-link" href="/metrics">Метрики</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">Вход</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">Личный профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">Регистрация</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">Выход</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-<section class="section_middle">
-    
-    <div class="view-container">
-        
-        <form class="view-card" action="#" method="post" th:object="${books}" enctype="multipart/form-data">
-            <input type="hidden" th:field="*{id}" />
-            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
-            <div class="view-header">
-                <h1 class="view-title">
-                    <input required type="text" name="title" id="title" th:field="*{title}" class="edit-title-input" placeholder="Название книги">
-                </h1>
-                <div class="view-actions">
-                    <button class="btn btn-edit" type="submit">Сохранить</button>
-                    <a th:if="${books.id != null}"
-                       class="btn btn-delete"
-                       th:href="@{/books/view/{id}(id=${books.id})}">
-                        Отмена
-                    </a>
-                    <a th:if="${books.id == null}"
-                       class="btn btn-delete"
-                       th:href="@{/books}">
-                        Отмена
-                    </a>
-                </div>
-            </div>
-            
-            <div class="view-content">
-                <div class="view-image-section">
-                    <div class="edit-image-container">
-                        <img class="view-image" th:if="${books.image_url != null and !books.image_url.isEmpty()}" th:src="@{*{image_url}}" alt="Обложка книги">
-                        <div class="edit-image-upload">
-                            <label for="image" class="edit-image-label">Загрузить изображение</label>
-                            <input type="file" name="image" id="image" accept="image/*">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="view-details">
-                    <div class="view-detail-item">
-                        <label for="description" class="detail-label">Описание:</label>
-                        <textarea name="description" id="description" th:field="*{description}" class="edit-textarea" rows="5"></textarea>
-                    </div>
+<main class="container flex-grow-1 py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <form class="card view-card" action="#" method="post" th:object="${books}" enctype="multipart/form-data">
+                <div class="card-body">
+                    <input type="hidden" th:field="*{id}" />
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
                     
-                    <div class="view-detail-row">
-                        <div class="view-detail-item">
-                            <label  for="isbn" class="detail-label">ISBN:</label>
-                            <input required type="text" name="isbn" id="isbn" th:field="*{isbn}" class="edit-input">
-                        </div>
-                        <div class="view-detail-item">
-                            <label for="language" class="detail-label">Язык:</label>
-                            <select required name="language" id="language" class="edit-select">
-                                <option th:each="lang : ${allLanguages}" 
-                                        th:value="${lang.name()}" 
-                                        th:text="${lang.displayName}"
-                                        th:selected="${books.language != null && books.language == lang}">
-                                </option>
-                            </select>
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <input required type="text" name="title" id="title" th:field="*{title}" class="form-control form-control-lg border-0 p-0" style="font-size: 2rem; font-weight: 700;" placeholder="Название книги">
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary" type="submit">Сохранить</button>
+                            <a th:if="${books.id != null}"
+                               class="btn btn-secondary"
+                               th:href="@{/books/view/{id}(id=${books.id})}">
+                                Отмена
+                            </a>
+                            <a th:if="${books.id == null}"
+                               class="btn btn-secondary"
+                               th:href="@{/books}">
+                                Отмена
+                            </a>
                         </div>
                     </div>
                     
-                    <div class="view-detail-row">
-                        <div class="view-detail-item">
-                            <label for="pages" class="detail-label">Страниц:</label>
-                            <input required type="number" name="pages" id="pages" th:field="*{pages}" class="edit-input">
+                    <div class="row g-4">
+                        <div class="col-md-4 text-center">
+                            <div class="mb-3">
+                                <img class="img-fluid rounded shadow" th:if="${books.image_url != null and !books.image_url.isEmpty()}" th:src="@{*{image_url}}" alt="Обложка книги" style="max-width: 300px;">
+                            </div>
+                            <div>
+                                <label for="image" class="btn btn-primary">Загрузить изображение</label>
+                                <input type="file" name="image" id="image" accept="image/*" class="d-none">
+                            </div>
                         </div>
-                        <div class="view-detail-item">
-                            <label for="price" class="detail-label">Цена:</label>
-                            <input required type="number" name="price" id="price" th:field="*{price}" step="0.01" class="edit-input">
-                        </div>
-                    </div>
-                    
-                    <div class="view-detail-row">
-                        <div class="view-detail-item">
-                            <label for="release_date" class="detail-label">Дата выхода:</label>
-                            <input required type="date" name="release_date" id="release_date" th:value="*{release_date}" class="edit-input">
-                        </div>
-                        <div class="view-detail-item">
-                            <label for="status" class="detail-label">Статус:</label>
-                            <select required name="status" id="status" class="edit-select">
-                                <option th:each="status : ${allStatuses}"
-                                        th:value="${status.name()}"
-                                        th:text="${status.displayName}"
-                                        th:selected="${books.status != null && books.status.name() == status.name()}">
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="view-detail-item">
-                        <label for="adult_check" class="detail-label">
-                            <input type="checkbox" name="adult_check" id="adult_check" th:field="*{adult_check}">
-                            Только для взрослых
-                        </label>
-                    </div>
-                    
-                    <div class="view-relationships">
-                        <div class="relationship-section">
-                            <label for="authorIds" class="detail-label">Авторы:</label>
-                            <div class="multiselect">
-                                <div class="selectBox" onclick="showCheckboxes('authorCheckboxes')">
-                                    <select required class="edit-select">
-                                        <option>Выберите авторов</option>
-                                    </select>
-                                    <div class="overSelect"></div>
+                        
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="description" class="form-label text-muted text-uppercase small">Описание:</label>
+                                <textarea name="description" id="description" th:field="*{description}" class="form-control" rows="5"></textarea>
+                            </div>
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="isbn" class="form-label text-muted text-uppercase small">ISBN:</label>
+                                    <input required type="text" name="isbn" id="isbn" th:field="*{isbn}" class="form-control" pattern="^(?:\d{10}|\d{13}|(?:\d{1,5}-?){1,5}[\dX])$" title="Введите корректный ISBN-10 или ISBN-13">
+                                    <small class="form-text text-muted">Формат: ISBN-10 (10 цифр) или ISBN-13 (13 цифр), дефисы опциональны</small>
+                                    <div id="isbnError" class="text-danger small mt-1" style="display: none;"></div>
                                 </div>
-                                <div id="authorCheckboxes" class="checkboxes" style="display: none;">
-                                    <label th:each="author : ${allAuthors}" class="checkbox-option">
-                                        <input type="checkbox" 
-                                               name="authorIds" 
-                                               class="author-checkbox"
-                                               th:value="${author.id}"
-                                               th:attr="data-author-id=${author.id}"
-                                               th:checked="${selectedAuthorIds != null && selectedAuthorIds.contains(author.id)}">
-                                        <span th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"></span>
-                                    </label>
+                                <div class="col-md-6">
+                                    <label for="language" class="form-label text-muted text-uppercase small">Язык:</label>
+                                    <select required name="language" id="language" class="form-select">
+                                        <option th:each="lang : ${allLanguages}" 
+                                                th:value="${lang.name()}" 
+                                                th:text="${lang.displayName}"
+                                                th:selected="${books.language != null && books.language == lang}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="pages" class="form-label text-muted text-uppercase small">Страниц:</label>
+                                    <input required type="number" name="pages" id="pages" th:field="*{pages}" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="price" class="form-label text-muted text-uppercase small">Цена:</label>
+                                    <input required type="number" name="price" id="price" th:field="*{price}" step="0.01" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="release_date" class="form-label text-muted text-uppercase small">Дата выхода:</label>
+                                    <input required type="date" name="release_date" id="release_date" th:value="*{release_date}" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label text-muted text-uppercase small">Статус:</label>
+                                    <input type="hidden" name="status" id="status" th:value="${books.status != null ? books.status.name() : 'SOON'}">
+                                    <p class="form-control-plaintext mb-0" id="statusDisplay" th:text="${books.status != null ? books.status.displayName : 'Скоро'}"></p>
+                                    <small class="form-text text-muted">Статус автоматически обновляется в зависимости от даты выхода</small>
                                 </div>
                             </div>
                             
-                            <label  for="mainAuthorId" class="detail-label" style="margin-top: 15px;">Главный автор:</label>
-                            <select  required name="mainAuthorId" id="mainAuthorId" class="edit-select">
-                                <option value="">-- Выберите главного автора --</option>
-                                <option th:each="author : ${allAuthors}"
-                                        th:value="${author.id}"
-                                        th:attr="data-author-id=${author.id}"
-                                        th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"
-                                        th:selected="${mainAuthorId != null && mainAuthorId == author.id}">
-                                </option>
-                            </select>
-                            <small class="edit-hint">Выберите главного автора из выбранных авторов</small>
-                        </div>
-                        
-                        <div class="relationship-section">
-                            <label for="genreIds" class="detail-label">Жанры:</label>
-                            <div class="multiselect">
-                                <div class="selectBox" onclick="showCheckboxes('genreCheckboxes')">
-                                    <select required class="edit-select">
-                                        <option>Выберите жанры</option>
-                                    </select>
-                                    <div class="overSelect"></div>
-                                </div>
-                                <div id="genreCheckboxes" class="checkboxes" style="display: none;">
-                                    <label th:each="genre : ${allGenres}" class="checkbox-option">
-                                        <input type="checkbox" 
-                                               name="genreIds" 
-                                               th:value="${genre.id}"
-                                               th:checked="${selectedGenreIds != null && selectedGenreIds.contains(genre.id)}">
-                                        <span th:text="${genre.displayName}"></span>
-                                    </label>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="adult_check" id="adult_check" th:field="*{adult_check}">
+                                    <label class="form-check-label" for="adult_check">Только для взрослых</label>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="relationship-section">
-                            <label for="seriesIds" class="detail-label">Серии:</label>
-                            <div class="multiselect">
-                                <div class="selectBox" onclick="showCheckboxes('seriesCheckboxes')">
-                                    <select class="edit-select">
-                                        <option>Выберите серии</option>
+                            
+                            <div class="border-top pt-4">
+                                <div class="mb-4">
+                                    <label class="form-label text-muted text-uppercase small mb-2">Авторы:</label>
+                                    <div class="multiselect">
+                                        <div class="selectBox" onclick="showCheckboxes('authorCheckboxes')">
+                                            <select required class="form-select" style="pointer-events: none;">
+                                                <option>Выберите авторов</option>
+                                            </select>
+                                            <div class="overSelect"></div>
+                                        </div>
+                                        <div id="authorCheckboxes" class="checkboxes" style="display: none;">
+                                            <label th:each="author : ${allAuthors}" class="checkbox-option">
+                                                <input type="checkbox" 
+                                                       name="authorIds" 
+                                                       class="author-checkbox"
+                                                       th:value="${author.id}"
+                                                       th:attr="data-author-id=${author.id}"
+                                                       th:checked="${selectedAuthorIds != null && selectedAuthorIds.contains(author.id)}">
+                                                <span th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <label for="mainAuthorId" class="form-label text-muted text-uppercase small mt-3">Главный автор:</label>
+                                    <select required name="mainAuthorId" id="mainAuthorId" class="form-select">
+                                        <option value="">-- Выберите главного автора --</option>
+                                        <option th:each="author : ${allAuthors}"
+                                                th:value="${author.id}"
+                                                th:attr="data-author-id=${author.id}"
+                                                th:text="${author.firstname + ' ' + (author.middlename != null ? author.middlename + ' ' : '') + (author.lastname != null ? author.lastname : '')}"
+                                                th:selected="${mainAuthorId != null && mainAuthorId == author.id}">
+                                        </option>
                                     </select>
-                                    <div class="overSelect"></div>
+                                    <small class="form-text text-muted">Выберите главного автора из выбранных авторов</small>
                                 </div>
-                                <div id="seriesCheckboxes" class="checkboxes" style="display: none;">
-                                    <label th:each="series : ${allSeries}" class="checkbox-option">
-                                        <input type="checkbox" 
-                                               name="seriesIds" 
-                                               th:value="${series.id}"
-                                               th:checked="${selectedSeriesIds != null && selectedSeriesIds.contains(series.id)}">
-                                        <span th:text="${series.displayName}"></span>
-                                    </label>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label text-muted text-uppercase small mb-2">Жанры:</label>
+                                    <div class="multiselect">
+                                        <div class="selectBox" onclick="showCheckboxes('genreCheckboxes')">
+                                            <select required class="form-select" style="pointer-events: none;">
+                                                <option>Выберите жанры</option>
+                                            </select>
+                                            <div class="overSelect"></div>
+                                        </div>
+                                        <div id="genreCheckboxes" class="checkboxes" style="display: none;">
+                                            <label th:each="genre : ${allGenres}" class="checkbox-option">
+                                                <input type="checkbox" 
+                                                       name="genreIds" 
+                                                       th:value="${genre.id}"
+                                                       th:checked="${selectedGenreIds != null && selectedGenreIds.contains(genre.id)}">
+                                                <span th:text="${genre.displayName}"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="form-label text-muted text-uppercase small mb-2">Серии:</label>
+                                    <div class="multiselect">
+                                        <div class="selectBox" onclick="showCheckboxes('seriesCheckboxes')">
+                                            <select class="form-select" style="pointer-events: none;">
+                                                <option>Выберите серии</option>
+                                            </select>
+                                            <div class="overSelect"></div>
+                                        </div>
+                                        <div id="seriesCheckboxes" class="checkboxes" style="display: none;">
+                                            <label th:each="series : ${allSeries}" class="checkbox-option">
+                                                <input type="checkbox" 
+                                                       name="seriesIds" 
+                                                       th:value="${series.id}"
+                                                       th:checked="${selectedSeriesIds != null && selectedSeriesIds.contains(series.id)}">
+                                                <span th:text="${series.displayName}"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</section>
-<footer class="footer">
-    <a class="footer-links" href="/about">
-        О создателе
-    </a>
-    <a class="footer-links" href="/contacts">
-        Контакты
-    </a>
+</main>
+
+<footer class="footer mt-auto">
+    <div class="container-fluid d-flex justify-content-center align-items-center flex-wrap gap-3">
+        <a href="/about">О создателе</a>
+        <a href="/contacts">Контакты</a>
+    </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const releaseDateInput = document.getElementById('release_date');
+        const statusInput = document.getElementById('status');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const isbnInput = document.getElementById('isbn');
+        const isbnError = document.getElementById('isbnError');
+        
+        function updateStatus() {
+            if (releaseDateInput && statusInput && releaseDateInput.value) {
+                const selectedDate = new Date(releaseDateInput.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                selectedDate.setHours(0, 0, 0, 0);
+                
+                if (selectedDate <= today) {
+                    statusInput.value = 'RELEASED';
+                    if (statusDisplay) {
+                        statusDisplay.textContent = 'Релиз';
+                    }
+                } else {
+                    statusInput.value = 'SOON';
+                    if (statusDisplay) {
+                        statusDisplay.textContent = 'Скоро';
+                    }
+                }
+            }
+        }
+        
+        function validateISBN(isbn) {
+            if (!isbn) return false;
+            
+            // Remove hyphens and spaces
+            const cleaned = isbn.replace(/[-\s]/g, '');
+            
+            // Check for ISBN-10: 10 digits, last can be X
+            if (cleaned.length === 10) {
+                return /^[0-9]{9}[0-9X]$/i.test(cleaned);
+            }
+            
+            // Check for ISBN-13: 13 digits
+            if (cleaned.length === 13) {
+                return /^[0-9]{13}$/.test(cleaned);
+            }
+            
+            return false;
+        }
+        
+        function validateISBNWithMessage(isbn) {
+            if (!isbn) {
+                return { valid: false, message: 'ISBN не может быть пустым' };
+            }
+            
+            const cleaned = isbn.replace(/[-\s]/g, '');
+            
+            if (cleaned.length === 10) {
+                if (!/^[0-9]{9}[0-9X]$/i.test(cleaned)) {
+                    return { valid: false, message: 'ISBN-10 должен содержать 10 символов (9 цифр и последняя цифра или X)' };
+                }
+                return { valid: true, message: '' };
+            }
+            
+            if (cleaned.length === 13) {
+                if (!/^[0-9]{13}$/.test(cleaned)) {
+                    return { valid: false, message: 'ISBN-13 должен содержать ровно 13 цифр' };
+                }
+                return { valid: true, message: '' };
+            }
+            
+            return { valid: false, message: 'ISBN должен быть в формате ISBN-10 (10 символов) или ISBN-13 (13 цифр)' };
+        }
+        
+        if (releaseDateInput) {
+            releaseDateInput.addEventListener('change', updateStatus);
+            // Update on page load if date is already set
+            updateStatus();
+        }
+        
+        if (isbnInput && isbnError) {
+            isbnInput.addEventListener('input', function() {
+                const validation = validateISBNWithMessage(this.value);
+                if (this.value && !validation.valid) {
+                    isbnError.textContent = validation.message;
+                    isbnError.style.display = 'block';
+                    this.setCustomValidity(validation.message);
+                } else {
+                    isbnError.style.display = 'none';
+                    this.setCustomValidity('');
+                }
+            });
+            
+            isbnInput.addEventListener('blur', function() {
+                const validation = validateISBNWithMessage(this.value);
+                if (this.value && !validation.valid) {
+                    isbnError.textContent = validation.message;
+                    isbnError.style.display = 'block';
+                    this.setCustomValidity(validation.message);
+                } else {
+                    isbnError.style.display = 'none';
+                    this.setCustomValidity('');
+                }
+            });
+            
+            // Validate on form submit
+            const form = isbnInput.closest('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const validation = validateISBNWithMessage(isbnInput.value);
+                    if (!validation.valid) {
+                        e.preventDefault();
+                        isbnError.textContent = validation.message;
+                        isbnError.style.display = 'block';
+                        isbnInput.focus();
+                        return false;
+                    }
+                });
+            }
+        }
+    });
+</script>
 </body>
 </html>

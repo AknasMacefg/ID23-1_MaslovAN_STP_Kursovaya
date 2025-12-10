@@ -148,6 +148,26 @@ public class BookController {
                                RedirectAttributes redirectAttributes) {
 
         try {
+            // Validate ISBN format
+            if (book.getIsbn() != null && !book.getIsbn().trim().isEmpty()) {
+                String isbn = book.getIsbn().replaceAll("[\\s-]", "");
+                boolean isValidISBN = false;
+                
+                // Check ISBN-10: 10 characters, last can be X
+                if (isbn.length() == 10) {
+                    isValidISBN = isbn.matches("^[0-9]{9}[0-9X]$");
+                }
+                // Check ISBN-13: 13 digits
+                else if (isbn.length() == 13) {
+                    isValidISBN = isbn.matches("^[0-9]{13}$");
+                }
+                
+                if (!isValidISBN) {
+                    redirectAttributes.addFlashAttribute("error", "Некорректный формат ISBN. Используйте ISBN-10 (10 символов) или ISBN-13 (13 цифр)");
+                    return "redirect:/books/edit/" + id;
+                }
+            }
+
             // Handle file upload
             if (file != null && !file.isEmpty()) {
                 String fileName = saveImage(file);
@@ -316,6 +336,26 @@ public class BookController {
                             @RequestParam(value = "status", required = false) String statusStr,
                             RedirectAttributes redirectAttributes) {
         try {
+            // Validate ISBN format
+            if (book.getIsbn() != null && !book.getIsbn().trim().isEmpty()) {
+                String isbn = book.getIsbn().replaceAll("[\\s-]", "");
+                boolean isValidISBN = false;
+                
+                // Check ISBN-10: 10 characters, last can be X
+                if (isbn.length() == 10) {
+                    isValidISBN = isbn.matches("^[0-9]{9}[0-9X]$");
+                }
+                // Check ISBN-13: 13 digits
+                else if (isbn.length() == 13) {
+                    isValidISBN = isbn.matches("^[0-9]{13}$");
+                }
+                
+                if (!isValidISBN) {
+                    redirectAttributes.addFlashAttribute("error", "Некорректный формат ISBN. Используйте ISBN-10 (10 символов) или ISBN-13 (13 цифр)");
+                    return "redirect:/books/edit/new";
+                }
+            }
+            
             String fileName;
             // Handle file upload for new book
             if (file != null && !file.isEmpty()) {

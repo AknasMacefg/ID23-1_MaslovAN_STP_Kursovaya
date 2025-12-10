@@ -1,11 +1,14 @@
 package mas.curs.infsys.controllers;
 
+import mas.curs.infsys.models.Role;
 import mas.curs.infsys.models.User;
+import mas.curs.infsys.services.EmailService;
 import mas.curs.infsys.services.UserService;
 import mas.curs.infsys.services.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +30,12 @@ public class AuthController {
 
     @Autowired
     private WishlistService wishlistService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Отображает форму регистрации нового пользователя.
@@ -148,6 +157,37 @@ public class AuthController {
         return "redirect:/profile";
     }
 
+    @PostMapping("/profile/change-email")
+    public String changeEmail(@RequestParam("password") String password,
+                             @RequestParam("newEmail") String newEmail,
+                             RedirectAttributes redirectAttributes) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        // Validate email format (basic check)
+        if (newEmail == null || newEmail.trim().isEmpty() || !newEmail.contains("@")) {
+            redirectAttributes.addFlashAttribute("error", "Некорректный формат email");
+            return "redirect:/profile";
+        }
+
+        // Change email
+        boolean success = userService.changeEmail(currentUser.getId(), password, newEmail.trim());
+        if (success) {
+            redirectAttributes.addFlashAttribute("success", "Email успешно изменен");
+        } else {
+            // Check if it's a password error or email already taken
+            User user = userService.getUserById(currentUser.getId());
+            if (user != null && !passwordEncoder.matches(password, user.getPassword())) {
+                redirectAttributes.addFlashAttribute("error", "Неверный пароль");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Этот email уже занят другим пользователем");
+            }
+        }
+        return "redirect:/profile";
+    }
+
     @PostMapping("/profile/wishlist/remove/{bookId}")
     public String removeFromWishlist(@PathVariable("bookId") Long bookId,
                                     RedirectAttributes redirectAttributes) {
@@ -161,6 +201,28 @@ public class AuthController {
             redirectAttributes.addFlashAttribute("success", "Книга удалена из списка желаний");
         } else {
             redirectAttributes.addFlashAttribute("error", "Произошла ошибка при удалении");
+        }
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/test-email")
+    public String sendTestEmail(RedirectAttributes redirectAttributes) {
+        User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        // Check if user is admin
+        if (currentUser.getRole() == null || currentUser.getRole() != Role.ADMIN) {
+            redirectAttributes.addFlashAttribute("error", "Доступ запрещен");
+            return "redirect:/profile";
+        }
+
+        try {
+            emailService.sendTestEmail(currentUser.getEmail(), currentUser.getUsername());
+            redirectAttributes.addFlashAttribute("success", "Тестовое письмо отправлено на " + currentUser.getEmail());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при отправке тестового письма: " + e.getMessage());
         }
         return "redirect:/profile";
     }

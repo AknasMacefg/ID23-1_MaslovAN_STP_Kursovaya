@@ -27,17 +27,45 @@ public class ScheduledTasks {
 
     /**
      * Runs every 24 hours at 2 AM
+     * - Sends deletion warnings to users who will be deleted in one month
      * - Deletes users whose last logout was more than a year ago
      * - Updates book statuses from SOON to RELEASED if release_date has passed
      * - Sends email notifications to users who have released books in their wishlist
      */
     @Scheduled(cron = "0 0 2 * * ?") // Every day at 2 AM
     public void dailyMaintenance() {
+        // Send deletion warnings to users who will be deleted in one month
+        sendDeletionWarnings();
+
         // Delete old users
         deleteOldUsers();
 
         // Update book statuses and send notifications
         updateBookStatusesAndNotify();
+    }
+
+    /**
+     * Sends email warnings to users whose accounts will be deleted in one month
+     * (users whose last logout was 11 months ago)
+     */
+    private void sendDeletionWarnings() {
+        LocalDateTime elevenMonthsAgo = LocalDateTime.now().minusMonths(11);
+        LocalDateTime elevenMonthsAndOneDayAgo = LocalDateTime.now().minusMonths(11).minusDays(1);
+        List<User> users = userService.getAllUsers();
+
+        for (User user : users) {
+            if (user.getLogout_at() != null 
+                    && user.isEmail_notification()
+                    && user.getLogout_at().isBefore(elevenMonthsAgo)
+                    && user.getLogout_at().isAfter(elevenMonthsAndOneDayAgo)) {
+                try {
+                    emailService.sendDeletionWarning(user.getEmail(), user.getUsername());
+                    System.out.println("Sent deletion warning to user: " + user.getUsername() + " (last logout: " + user.getLogout_at() + ")");
+                } catch (Exception e) {
+                    System.err.println("Failed to send deletion warning to user " + user.getUsername() + ": " + e.getMessage());
+                }
+            }
+        }
     }
 
     private void deleteOldUsers() {

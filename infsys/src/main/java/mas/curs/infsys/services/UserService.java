@@ -180,6 +180,29 @@ public class UserService {
         return true;
     }
 
+    public boolean changeEmail(Long userId, String password, String newEmail) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return false;
+        }
+        
+        // Verify password
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return false;
+        }
+        
+        // Check if new email is already taken by another user
+        if (userRepository.existsByEmail(newEmail) && !user.getEmail().equals(newEmail)) {
+            return false;
+        }
+        
+        // Set new email
+        user.setEmail(newEmail);
+        user.setUpdated_at(LocalDateTime.now());
+        userRepository.saveAndFlush(user);
+        return true;
+    }
+
     public void updateLoginTime(String email) {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user != null) {

@@ -3,118 +3,102 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
 </head>
-<body>
-<header class="header__nav">
-    <nav class="nav__list">
-        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
-            <span></span>
+<body class="d-flex flex-column min-vh-100">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <ul class="header__list" id="headerList">
-            <li>
-                <a href="/">
-                    Главная
-                </a>
-            </li>
-            <li>
-                <a href="/books">
-                    Книги
-                </a>
-            </li>
-            <li>
-                <a href="/authors">
-                    Авторы
-                </a>
-            </li>
-            <li>
-                <a href="/series">
-                    Серии
-                </a>
-            </li>
-            <li>
-                <a href="/genres">
-                    Жанры
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a  href="/users">
-                    Пользователи
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
-                <a href="/metrics">
-                    Метрики
-                </a>
-            </li>
-        </ul>
-        <ul class="login__nav" id="loginNav">
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
-                    Вход
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
-                    Личный профиль
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
-                    Регистрация
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
-                    Выход
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
-
-<section class="section_middle">
-    <div class="centered-form-container">
-        <form action="#" th:action="@{/users/edit/{id}(id=${user.id})}" th:object="${user}" method="post" class="centered-form">
-            <h2>Изменение пользователя</h2>
-            <input type="hidden" th:field="*{id}" />
-            <input type="hidden" th:field="*{password}" />
-            <input type="hidden" th:field="*{created_at}" />
-            <div class="form-group">
-                <label for="username">Имя пользователя</label>
-                <input readonly type="text" id="username" th:field="*{username}" />
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input readonly type="text" id="email" th:field="*{email}" />
-            </div>
-            <div class="form-group">
-                <label for="roles">Выберите роль</label>
-                <select required id="roles" th:field="*{role}">
-                    <option th:each="role : ${allRoles}"
-                            th:value="${role}"
-                            th:text="${role.name()}">
-                        NULL
-                    </option>
-                </select>
-            </div>
-            <div class="form-group form-actions">
-                <button class="form-submit-btn" type="submit">Сохранить изменения</button>
-                <a class="form-cancel-btn" href="/users">Отмена</a>
-            </div>
-        </form>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/books">Книги</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/authors">Авторы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/series">Серии</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/genres">Жанры</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN')">
+                    <a class="nav-link" href="/users">Пользователи</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                    <a class="nav-link" href="/metrics">Метрики</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">Вход</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">Личный профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">Регистрация</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">Выход</a>
+                </li>
+            </ul>
+        </div>
     </div>
-</section>
-<footer class="footer">
-    <a class="footer-links" href="/about">
-        О создателе
-    </a>
-    <a class="footer-links" href="/contacts">
-        Контакты
-    </a>
+</nav>
+
+<main class="container flex-grow-1 d-flex align-items-center justify-content-center py-5">
+    <div class="card shadow" style="max-width: 450px; width: 100%;">
+        <div class="card-body p-4">
+            <h2 class="text-center mb-4">Изменение пользователя</h2>
+            <form action="#" th:action="@{/users/edit/{id}(id=${user.id})}" th:object="${user}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <input type="hidden" th:field="*{password}" />
+                <input type="hidden" th:field="*{created_at}" />
+                <div class="mb-3">
+                    <label for="username" class="form-label">Имя пользователя</label>
+                    <input readonly type="text" class="form-control" id="username" th:field="*{username}" />
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input readonly type="text" class="form-control" id="email" th:field="*{email}" />
+                </div>
+                <div class="mb-3">
+                    <label for="roles" class="form-label">Выберите роль</label>
+                    <select required class="form-select" id="roles" th:field="*{role}">
+                        <option th:each="role : ${allRoles}"
+                                th:value="${role}"
+                                th:text="${role.name()}">
+                            NULL
+                        </option>
+                    </select>
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" type="submit">Сохранить изменения</button>
+                    <a class="btn btn-secondary" href="/users">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer class="footer mt-auto">
+    <div class="container-fluid d-flex justify-content-center align-items-center flex-wrap gap-3">
+        <a href="/about">О создателе</a>
+        <a href="/contacts">Контакты</a>
+    </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

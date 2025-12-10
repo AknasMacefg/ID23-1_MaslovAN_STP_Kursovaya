@@ -3,185 +3,165 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
 </head>
-<body>
-<header class="header__nav">
-    <nav class="nav__list">
-        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
-            <span></span>
+<body class="d-flex flex-column min-vh-100">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <ul class="header__list" id="headerList">
-            <li>
-                <a href="/">
-                    Главная
-                </a>
-            </li>
-            <li>
-                <a href="/books">
-                    Книги
-                </a>
-            </li>
-            <li>
-                <a href="/authors">
-                    Авторы
-                </a>
-            </li>
-            <li>
-                <a href="/series">
-                    Серии
-                </a>
-            </li>
-            <li>
-                <a href="/genres">
-                    Жанры
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a  href="/users">
-                    Пользователи
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
-                <a href="/metrics">
-                    Метрики
-                </a>
-            </li>
-        </ul>
-        <ul class="login__nav" id="loginNav">
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
-                    Вход
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
-                    Личный профиль
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
-                    Регистрация
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
-                    Выход
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/books">Книги</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/authors">Авторы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/series">Серии</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/genres">Жанры</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN')">
+                    <a class="nav-link" href="/users">Пользователи</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                    <a class="nav-link" href="/metrics">Метрики</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">Вход</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">Личный профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">Регистрация</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">Выход</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-<section class="section_middle">
-    <div class="view-container">
-       
-        
-        <div class="view-card" th:object="${books}">
-            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
-            <div class="view-header">
-                <h1 class="view-title" th:text="*{title}"></h1>
-                <div class="view-actions">
-                    <div class="view-actions-user" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')">
-                        <form th:if="${!inWishlist}" th:action="@{/books/view/{id}/wishlist/add(id=*{id})}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-wishlist">Добавить в список желаний</button>
-                        </form>
-                        <form th:if="${inWishlist}" th:action="@{/books/view/{id}/wishlist/remove(id=*{id})}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-wishlist-remove">Удалить из списка желаний</button>
-                        </form>
-                    </div>
-                    <div class="view-actions-admin" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')">
-                        <a class="btn btn-edit" th:href="@{/books/edit/{id}(id=*{id})}">Изменить</a>
-                        <a class="btn btn-delete" 
-                           th:href="@{/books/delete/{id}(id=*{id})}"
-                           onclick="return confirm('Вы уверены, что хотите удалить эту книгу? Все связи с авторами, жанрами, сериями и записи в списках желаний будут удалены.');">Удалить</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="view-content">
-                <div class="view-image-section">
-                    <img class="view-image" th:src="@{*{image_url}}" alt="Обложка книги">
-                    <div class="view-badge" th:if="${books.adult_check == true}">18+</div>
-                </div>
-                
-                <div class="view-details">
-                    <div class="view-detail-item" th:if="${books.description != null and !books.description.isEmpty()}">
-                        <span class="detail-label">Описание:</span>
-                        <p class="detail-value" th:text="*{description}"></p>
-                    </div>
+<main class="container flex-grow-1 py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card view-card" th:object="${books}">
+                <div class="card-body">
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
                     
-                    <div class="view-detail-row">
-                        <div class="view-detail-item">
-                            <span class="detail-label">ISBN:</span>
-                            <span class="detail-value" th:text="*{isbn}"></span>
-                        </div>
-                        <div class="view-detail-item">
-                            <span class="detail-label">Язык:</span>
-                            <span class="detail-value" th:text="*{language}"></span>
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <h1 class="h2 mb-0" th:text="*{title}"></h1>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <div sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')">
+                                <form th:if="${!inWishlist}" th:action="@{/books/view/{id}/wishlist/add(id=*{id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-primary">Добавить в список желаний</button>
+                                </form>
+                                <form th:if="${inWishlist}" th:action="@{/books/view/{id}/wishlist/remove(id=*{id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger">Удалить из списка желаний</button>
+                                </form>
+                            </div>
+                            <div sec:authorize="hasAnyRole('EDITOR', 'ADMIN')">
+                                <a class="btn btn-primary" th:href="@{/books/edit/{id}(id=*{id})}">Изменить</a>
+                                <a class="btn btn-danger" 
+                                   th:href="@{/books/delete/{id}(id=*{id})}"
+                                   onclick="return confirm('Вы уверены, что хотите удалить эту книгу? Все связи с авторами, жанрами, сериями и записи в списках желаний будут удалены.');">Удалить</a>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="view-detail-row">
-                        <div class="view-detail-item">
-                            <span class="detail-label">Страниц:</span>
-                            <span class="detail-value" th:text="*{pages}"></span>
-                        </div>
-                        <div class="view-detail-item">
-                            <span class="detail-label">Цена:</span>
-                            <span class="detail-value" th:text="${#numbers.formatDecimal(books.price, 1, 2)} + ' ₽'"></span>
-                        </div>
-                    </div>
-                    
-                    <div class="view-detail-row">
-                        <div class="view-detail-item">
-                            <span class="detail-label">Дата выхода:</span>
-                            <span class="detail-value" th:text="${books.release_date != null ? #temporals.format(books.release_date, 'dd.MM.yyyy') : ''}"></span>
-                        </div>
-                        <div class="view-detail-item">
-                            <span class="detail-label">Статус:</span>
-                            <span class="detail-value status-badge" th:text="*{status.displayName}"></span>
-                        </div>
-                    </div>
-                    
-                    <div class="view-relationships">
-                        <div class="relationship-section" th:if="${books?.bookAuthor != null and !books.bookAuthor.isEmpty()}">
-                            <span class="detail-label">Авторы:</span>
-                            <div class="tag-list">
-                                <a th:each="bookAuthor : ${books.bookAuthor}" 
-                                   class="tag tag-link"
-                                   th:href="@{/authors/view/{id}(id=${bookAuthor?.author?.id})}"
-                                   th:if="${bookAuthor?.author != null}"
-                                   th:text="${(bookAuthor.author.firstname != null ? bookAuthor.author.firstname : '') + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}">
-                                </a>
+                    <div class="row g-4">
+                        <div class="col-md-4 text-center">
+                            <div class="position-relative d-inline-block">
+                                <img class="img-fluid rounded shadow" th:src="@{*{image_url}}" alt="Обложка книги" style="max-width: 300px;">
+                                <span class="adult-marker" th:if="${books.adult_check == true}">18+</span>
                             </div>
                         </div>
                         
-                        <div class="relationship-section" th:if="${books?.bookGenre != null and !books.bookGenre.isEmpty()}">
-                            <span class="detail-label">Жанры:</span>
-                            <div class="tag-list">
-                                <a th:each="bookGenre : ${books.bookGenre}" 
-                                   class="tag tag-link"
-                                   th:href="@{/genres/view/{id}(id=${bookGenre?.genre?.id})}"
-                                   th:if="${bookGenre?.genre != null}"
-                                   th:text="${bookGenre.genre.displayName}">
-                                </a>
+                        <div class="col-md-8">
+                            <div th:if="${books.description != null and !books.description.isEmpty()}" class="mb-4">
+                                <h5 class="text-muted text-uppercase small mb-2">Описание:</h5>
+                                <p class="mb-0" th:text="*{description}"></p>
                             </div>
-                        </div>
-                        
-                        <div class="relationship-section" th:if="${books?.bookSeries != null and !books.bookSeries.isEmpty()}">
-                            <span class="detail-label">Серии:</span>
-                            <div class="tag-list">
-                                <a th:each="bookSeries : ${books.bookSeries}" 
-                                   class="tag tag-link"
-                                   th:href="@{/series/view/{id}(id=${bookSeries?.series?.id})}"
-                                   th:if="${bookSeries?.series != null}"
-                                   th:text="${bookSeries.series.displayName}">
-                                </a>
+                            
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <h5 class="text-muted text-uppercase small mb-1">ISBN:</h5>
+                                    <p class="mb-0" th:text="*{isbn}"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="text-muted text-uppercase small mb-1">Язык:</h5>
+                                    <p class="mb-0" th:text="*{language}"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="text-muted text-uppercase small mb-1">Страниц:</h5>
+                                    <p class="mb-0" th:text="*{pages}"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="text-muted text-uppercase small mb-1">Цена:</h5>
+                                    <p class="mb-0" th:text="${#numbers.formatDecimal(books.price, 1, 2)} + ' ₽'"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="text-muted text-uppercase small mb-1">Дата выхода:</h5>
+                                    <p class="mb-0" th:text="${books.release_date != null ? #temporals.format(books.release_date, 'dd.MM.yyyy') : ''}"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="text-muted text-uppercase small mb-1">Статус:</h5>
+                                    <p class="mb-0"><span class="badge bg-secondary" th:text="*{status.displayName}"></span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="border-top pt-4">
+                                <div class="mb-3" th:if="${books?.bookAuthor != null and !books.bookAuthor.isEmpty()}">
+                                    <h5 class="text-muted text-uppercase small mb-2">Авторы:</h5>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a th:each="bookAuthor : ${books.bookAuthor}" 
+                                           class="tag"
+                                           th:href="@{/authors/view/{id}(id=${bookAuthor?.author?.id})}"
+                                           th:if="${bookAuthor?.author != null}"
+                                           th:text="${(bookAuthor.author.firstname != null ? bookAuthor.author.firstname : '') + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}">
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3" th:if="${books?.bookGenre != null and !books.bookGenre.isEmpty()}">
+                                    <h5 class="text-muted text-uppercase small mb-2">Жанры:</h5>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a th:each="bookGenre : ${books.bookGenre}" 
+                                           class="tag"
+                                           th:href="@{/genres/view/{id}(id=${bookGenre?.genre?.id})}"
+                                           th:if="${bookGenre?.genre != null}"
+                                           th:text="${bookGenre.genre.displayName}">
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div th:if="${books?.bookSeries != null and !books.bookSeries.isEmpty()}">
+                                    <h5 class="text-muted text-uppercase small mb-2">Серии:</h5>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a th:each="bookSeries : ${books.bookSeries}" 
+                                           class="tag"
+                                           th:href="@{/series/view/{id}(id=${bookSeries?.series?.id})}"
+                                           th:if="${bookSeries?.series != null}"
+                                           th:text="${bookSeries.series.displayName}">
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -189,14 +169,15 @@
             </div>
         </div>
     </div>
-</section>
-<footer class="footer">
-    <a class="footer-links" href="/about">
-        О создателе
-    </a>
-    <a class="footer-links" href="/contacts">
-        Контакты
-    </a>
+</main>
+
+<footer class="footer mt-auto">
+    <div class="container-fluid d-flex justify-content-center align-items-center flex-wrap gap-3">
+        <a href="/about">О создателе</a>
+        <a href="/contacts">Контакты</a>
+    </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

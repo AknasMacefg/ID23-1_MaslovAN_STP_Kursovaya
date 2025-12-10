@@ -3,139 +3,126 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Календарь релизов ИД "Инженерия Данных"</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="all" href="../static/styles/style.css" th:href="@{/styles/style.css}">
 </head>
-<body>
-<header class="header__nav">
-    <nav class="nav__list">
-        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
-            <span></span>
+<body class="d-flex flex-column min-vh-100">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <ul class="header__list" id="headerList">
-            <li>
-                <a href="/">
-                    Главная
-                </a>
-            </li>
-            <li>
-                <a href="/books">
-                    Книги
-                </a>
-            </li>
-            <li>
-                <a href="/authors">
-                    Авторы
-                </a>
-            </li>
-            <li>
-                <a href="/series">
-                    Серии
-                </a>
-            </li>
-            <li>
-                <a href="/genres">
-                    Жанры
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('ADMIN')">
-                <a  href="/users">
-                    Пользователи
-                </a>
-            </li>
-            <li sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
-                <a href="/metrics">
-                    Метрики
-                </a>
-            </li>
-        </ul>
-        <ul class="login__nav" id="loginNav">
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">
-                    Вход
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">
-                    Личный профиль
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">
-                    Регистрация
-                </a>
-            </li>
-            <li>
-                <a sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">
-                    Выход
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/books">Книги</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/authors">Авторы</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/series">Серии</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/genres">Жанры</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN')">
+                    <a class="nav-link" href="/users">Пользователи</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('MANAGER', 'ADMIN')">
+                    <a class="nav-link" href="/metrics">Метрики</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/login">Вход</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/profile">Личный профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="!hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/register">Регистрация</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="hasAnyRole('USER', 'EDITOR', 'ADMIN', 'MANAGER')" href="/logout">Выход</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
-<section class="section_middle">
-    <div class="view-container">
-        <div class="view-card" th:object="${series}">
-            <div class="form-message form-success" th:if="${success}" th:text="${success}"></div>
-            <div class="form-message form-error" th:if="${error}" th:text="${error}"></div>
-            <div class="view-header">
-                <h1 class="view-title" th:text="*{displayName}"></h1>
-                <div class="view-actions" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')">
-                    <a class="btn btn-edit" th:href="@{/series/edit/{id}(id=*{id})}">Изменить</a>
-                    <a class="btn btn-delete" 
-                       th:href="@{/series/delete/{id}(id=*{id})}"
-                       onclick="return confirm('Вы уверены, что хотите удалить эту серию? Все связи с книгами будут удалены.');">Удалить</a>
-                </div>
-            </div>
-            
-            <div class="view-content detail-info-container">
-                <div class="view-details">
-                    <div class="view-detail-item" th:if="${series.description != null and !series.description.isEmpty()}">
-                        <span class="detail-label">Описание:</span>
-                        <p class="detail-value" th:text="*{description}"></p>
+<main class="container flex-grow-1 py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card view-card" th:object="${series}">
+                <div class="card-body">
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <h1 class="h2 mb-0" th:text="*{displayName}"></h1>
+                        <div class="d-flex gap-2" sec:authorize="hasAnyRole('EDITOR', 'ADMIN')">
+                            <a class="btn btn-primary" th:href="@{/series/edit/{id}(id=*{id})}">Изменить</a>
+                            <a class="btn btn-danger" 
+                               th:href="@{/series/delete/{id}(id=*{id})}"
+                               onclick="return confirm('Вы уверены, что хотите удалить эту серию? Все связи с книгами будут удалены.');">Удалить</a>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="books-carousel-section"  th:if="${books != null and !books.isEmpty()}">
-                    <h2 class="carousel-title">Книги этой серии</h2>
-                    <div class="carousel-container-scrollable">
-                        <div class="carousel-track-scrollable">
-                            <a th:each="book : ${books}" th:href="@{/books/view/{id}(id=${book.id})}" class="carousel-book-card">
-                                <div class="carousel-book-image">
-                                    <img th:src="@{${book.image_url}}" alt="Обложка книги">
-                                    <span class="adult-marker" th:if="${book.adult_check}">18+</span>
+                    
+                    <div th:if="${series.description != null and !series.description.isEmpty()}" class="mb-4">
+                        <h5 class="text-muted text-uppercase small mb-2">Описание:</h5>
+                        <p class="mb-0" th:text="*{description}"></p>
+                    </div>
+                    
+                    <div class="border-top pt-4" th:if="${books != null and !books.isEmpty()}">
+                        <h2 class="h4 mb-4">Книги этой серии</h2>
+                        <div class="carousel-container-scrollable">
+                            <div class="d-flex gap-3" style="overflow-x: auto; padding-bottom: 10px;">
+                                <div th:each="book : ${books}" style="flex: 0 0 200px; max-width: 200px;">
+                                    <a th:href="@{/books/view/{id}(id=${book.id})}" class="text-decoration-none text-dark">
+                                        <div class="card h-100">
+                                            <div class="position-relative">
+                                                <img th:src="@{${book.image_url}}" class="card-img-top" alt="Обложка книги" style="height: 280px; object-fit: cover;">
+                                                <span class="adult-marker" th:if="${book.adult_check}">18+</span>
+                                            </div>
+                                            <div class="card-body d-flex flex-column">
+                                                <h5 class="card-title" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" th:text="${book.title}"></h5>
+                                                <p class="card-text text-muted small" th:if="${book.bookAuthor != null and !book.bookAuthor.isEmpty()}">
+                                                    <span th:each="bookAuthor : ${book.bookAuthor}" th:if="${bookAuthor.main_author == true}">
+                                                        <span th:text="${bookAuthor.author.firstname + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}"></span>
+                                                    </span>
+                                                </p>
+                                                <div class="mt-auto d-flex align-items-center gap-2 flex-wrap">
+                                                    <span class="badge bg-secondary" th:text="${book.status.displayName}"></span>
+                                                    <span class="text-muted small" th:if="${book.status.name() == 'SOON' and book.release_date != null}" 
+                                                          th:text="${#temporals.format(book.release_date, 'dd.MM.yyyy')}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
                                 </div>
-                                <div class="carousel-book-content">
-                                    <h3 class="carousel-book-title" th:text="${book.title}"></h3>
-                                    <p class="carousel-book-author" th:if="${book.bookAuthor != null and !book.bookAuthor.isEmpty()}">
-                                        <span th:each="bookAuthor : ${book.bookAuthor}" th:if="${bookAuthor.main_author == true}">
-                                            <span th:text="${bookAuthor.author.firstname + ' ' + (bookAuthor.author.middlename != null ? bookAuthor.author.middlename + ' ' : '') + (bookAuthor.author.lastname != null ? bookAuthor.author.lastname : '')}"></span>
-                                        </span>
-                                    </p>
-                                    <div class="carousel-book-status">
-                                        <span class="status-badge" th:text="${book.status.displayName}"></span>
-                                        <span class="release-date" th:if="${book.status.name() == 'SOON' and book.release_date != null}" 
-                                              th:text="${' - ' + #temporals.format(book.release_date, 'dd.MM.yyyy')}"></span>
-                                    </div>
-                                </div>
-                            </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
-<footer class="footer">
-    <a class="footer-links" href="/about">
-        О создателе
-    </a>
-    <a class="footer-links" href="/contacts">
-        Контакты
-    </a>
+</main>
+
+<footer class="footer mt-auto">
+    <div class="container-fluid d-flex justify-content-center align-items-center flex-wrap gap-3">
+        <a href="/about">О создателе</a>
+        <a href="/contacts">Контакты</a>
+    </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
