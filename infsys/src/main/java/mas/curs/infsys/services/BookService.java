@@ -40,23 +40,21 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public List<Book> getBooksFilteredAndSorted(List<Long> genreIds, List<String> languages, Boolean adultCheck, List<String> statuses, String sortBy, String search, int page, int pageSize) {
+    public List<Book> getBooksFilteredAndSorted(List<Long> genreIds, List<String> languages,
+                                                Boolean adultCheck, List<String> statuses,
+                                                String sortBy, String search, int page, int pageSize) {
         List<Book> books = bookRepository.findAll();
-        
-        // Apply search filter
+
         if (search != null && !search.trim().isEmpty()) {
             String searchLower = search.toLowerCase().trim();
             books = books.stream()
                 .filter(book -> {
-                    // Search in title
                     if (book.getTitle() != null && book.getTitle().toLowerCase().contains(searchLower)) {
                         return true;
                     }
-                    // Search in description
                     if (book.getDescription() != null && book.getDescription().toLowerCase().contains(searchLower)) {
                         return true;
                     }
-                    // Search in authors
                     if (book.getBookAuthor() != null) {
                         boolean authorMatch = book.getBookAuthor().stream()
                             .anyMatch(ba -> ba.getAuthor() != null && (
@@ -66,7 +64,6 @@ public class BookService {
                             ));
                         if (authorMatch) return true;
                     }
-                    // Search in ISBN
                     if (book.getIsbn() != null && book.getIsbn().toLowerCase().contains(searchLower)) {
                         return true;
                     }
@@ -74,8 +71,7 @@ public class BookService {
                 })
                 .collect(Collectors.toList());
         }
-        
-        // Apply filters
+
         if (genreIds != null && !genreIds.isEmpty()) {
             books = books.stream()
                 .filter(book -> book.getBookGenre().stream()
@@ -106,8 +102,7 @@ public class BookService {
                 })
                 .collect(Collectors.toList());
         }
-        
-        // Apply sorting
+
         if (sortBy != null && !sortBy.isEmpty()) {
             switch (sortBy) {
                 case "title":
@@ -124,8 +119,7 @@ public class BookService {
                     break;
             }
         }
-        
-        // Apply pagination if more than pageSize items
+
         if (books.size() > pageSize) {
             int start = page * pageSize;
             int end = Math.min(start + pageSize, books.size());

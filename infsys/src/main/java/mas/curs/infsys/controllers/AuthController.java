@@ -14,17 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * Веб-контроллер для обработки регистрации и входа пользователей.
- * <p>
- * Обеспечивает отображение форм регистрации и авторизации,
- * а также обработку данных, введённых пользователями через веб-интерфейс.
- * </p>
- */
+
 @Controller
 public class AuthController {
 
-    /** Сервис для выполнения операций с пользователями. */
     @Autowired
     private UserService userService;
 
@@ -37,42 +30,26 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /**
-     * Отображает форму регистрации нового пользователя.
-     *
-     * @param model объект {@link Model}, используемый для передачи данных в представление
-     * @return имя шаблона страницы регистрации
-     */
+
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         model.addAttribute("user", new User());
         return "register";
     }
 
-    /**
-     * Обрабатывает отправку формы регистрации.
-     *
-     * @param user объект {@link User}, связанный с данными из формы
-     * @param model объект {@link Model} для передачи ошибок при неудачной регистрации
-     * @return перенаправление на страницу входа при успешной регистрации
-     *         или возврат на форму с сообщением об ошибке, если пользователь уже существует
-     */
+
     @PostMapping("/register")
     public String registerUser(@ModelAttribute("user") User user,
                                @RequestParam("confirmPassword") String confirmPassword,
                                RedirectAttributes redirectAttributes) {
-        // Validate password length
         if (user.getPassword() == null || user.getPassword().length() < 6) {
             redirectAttributes.addFlashAttribute("error", "Пароль должен содержать минимум 6 символов");
             return "redirect:/register";
         }
-        
-        // Validate password confirmation
         if (!user.getPassword().equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("error", "Пароли не совпадают");
             return "redirect:/register";
         }
-        
         boolean success = userService.register(user);
         if (success) {
             return "redirect:/login";
@@ -81,12 +58,6 @@ public class AuthController {
             return "redirect:/register";
         }
     }
-
-    /**
-     * Отображает страницу входа пользователя.
-     *
-     * @return имя шаблона страницы входа (login)
-     */
     @GetMapping("/login")
     public String showLoginForm() {
         return "login";
@@ -98,8 +69,6 @@ public class AuthController {
         if (currentUser == null) {
             return "redirect:/login";
         }
-
-        // Load user with wishlist
         User user = userService.getUserByIdWithWishlist(currentUser.getId());
         model.addAttribute("user", user);
         return "profile";

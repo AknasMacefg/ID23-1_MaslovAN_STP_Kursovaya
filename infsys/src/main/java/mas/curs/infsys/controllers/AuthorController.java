@@ -1,4 +1,5 @@
 package mas.curs.infsys.controllers;
+import mas.curs.infsys.exceptions.ResourceNotFoundException;
 import mas.curs.infsys.models.Author;
 import mas.curs.infsys.services.AuthorService;
 import mas.curs.infsys.services.BookService;
@@ -68,6 +69,9 @@ public class AuthorController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
         Author author = authorService.getAuthorById(id);
+        if (author == null) {
+            throw new ResourceNotFoundException("Автор с ID " + id + " не найден");
+        }
         model.addAttribute("authors", author);
         return "edit-author";
     }
@@ -78,20 +82,23 @@ public class AuthorController {
                                @RequestParam("photo") MultipartFile file,
                                RedirectAttributes redirectAttributes) {
 
+        Author existingAuthor = authorService.getAuthorById(id);
+        if (existingAuthor == null) {
+            throw new ResourceNotFoundException("Автор с ID " + id + " не найден");
+        }
+
         try {
             // Handle file upload
             if (file != null && !file.isEmpty()) {
                 String fileName = saveImage(file);
                 author.setPhoto_url("/images/authors/" + fileName);
             } else if (author.getPhoto_url() == null || author.getPhoto_url().isEmpty()) {
-                // Keep existing photo if no new file uploaded
-                Author existingAuthor = authorService.getAuthorById(id);
                 if (existingAuthor != null) {
                     author.setPhoto_url(existingAuthor.getPhoto_url());
                 }
             }
 
-            deleteOldImage(authorService.getAuthorById(id).getPhoto_url());
+            deleteOldImage(existingAuthor.getPhoto_url());
 
             author.setId(id);
             boolean success = authorService.updateAuthor(author);
@@ -112,10 +119,13 @@ public class AuthorController {
 
     @GetMapping("/view/{id}")
     public String showViewForm(@PathVariable("id") Long id, Model model) {
-        Author author = authorService.getAuthorById(id); // Retrieve the existing item
+        Author author = authorService.getAuthorById(id);
+        if (author == null) {
+            throw new ResourceNotFoundException("Автор с ID " + id + " не найден");
+        }
         model.addAttribute("authors", author);
         model.addAttribute("books", bookService.getBooksByAuthor(id));
-        return "view-author"; // Name of your edit Thymeleaf template
+        return "view-author";
     }
 
     @GetMapping("/edit/new")
@@ -157,6 +167,10 @@ public class AuthorController {
 
     @GetMapping("/delete/{id}")
     public String deleteAuthor(@PathVariable("id") Long id) {
+        Author author = authorService.getAuthorById(id);
+        if (author == null) {
+            throw new ResourceNotFoundException("Автор с ID " + id + " не найден");
+        }
         authorService.deleteAuthor(id);
         return "redirect:/authors";
     }

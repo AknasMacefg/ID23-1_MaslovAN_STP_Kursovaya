@@ -1,5 +1,6 @@
 package mas.curs.infsys.controllers;
 
+import mas.curs.infsys.exceptions.ResourceNotFoundException;
 import mas.curs.infsys.models.Role;
 import mas.curs.infsys.models.User;
 import mas.curs.infsys.services.UserService;
@@ -9,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 
@@ -62,22 +62,33 @@ public class UserController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
-        User user = userService.getUserById(id); // Retrieve the existing item
+        User user = userService.getUserById(id);
+        if (user == null) {
+            throw new ResourceNotFoundException("Пользователь с ID " + id + " не найден");
+        }
         model.addAttribute("user", user);
-        model.addAttribute("allRoles", Arrays.copyOfRange(Role.values(), 0, 3)); // Add the item to the model
-        return "edit-user"; // Name of your edit Thymeleaf template
+        model.addAttribute("allRoles", Arrays.copyOfRange(Role.values(), 0, 3));
+        return "edit-user";
     }
 
     // Handler to process the form submission (POST request)
     @PostMapping("/edit/{id}")
-    public String updateItem(@ModelAttribute("user") User userDetails) {
-        // Here you would use your service to save the updated item details
-       userService.addUser(userDetails);
-        return "redirect:/users"; // Redirect back to the list page after saving
+    public String updateItem(@PathVariable("id") Long id, @ModelAttribute("user") User userDetails, RedirectAttributes redirectAttributes) {
+        User existingUser = userService.getUserById(id);
+        if (existingUser == null) {
+            throw new ResourceNotFoundException("Пользователь с ID " + id + " не найден");
+        }
+        userService.addUser(userDetails);
+        redirectAttributes.addFlashAttribute("success", "Пользователь успешно обновлен");
+        return "redirect:/users";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        User user = userService.getUserById(id);
+        if (user == null) {
+            throw new ResourceNotFoundException("Пользователь с ID " + id + " не найден");
+        }
         try {
             userService.deleteUser(id);
             redirectAttributes.addFlashAttribute("success", "Пользователь успешно удален");

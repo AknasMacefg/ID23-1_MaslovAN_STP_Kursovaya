@@ -29,14 +29,12 @@ public class WishlistService {
         if (user == null || book == null) {
             return false;
         }
-
-        // Check if already in wishlist
         boolean alreadyExists = user.getUserWishlist().stream()
             .anyMatch(wl -> wl.getBook().getId().equals(bookId));
 
         if (alreadyExists) {
-            return false; // Already in wishlist
-        }
+            return false;
+    }
 
         UserWishlist wishlistItem = new UserWishlist(user, book, LocalDate.now());
         UserWishlistId id = new UserWishlistId(userId, bookId);

@@ -1,4 +1,5 @@
 package mas.curs.infsys.controllers;
+import mas.curs.infsys.exceptions.ResourceNotFoundException;
 import mas.curs.infsys.models.Genre;
 import mas.curs.infsys.services.GenreService;
 import mas.curs.infsys.services.BookService;
@@ -56,15 +57,21 @@ public class GenreController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
-        Genre genre = genreService.getGenreById(id); // Retrieve the existing item
+        Genre genre = genreService.getGenreById(id);
+        if (genre == null) {
+            throw new ResourceNotFoundException("Жанр с ID " + id + " не найден");
+        }
         model.addAttribute("genre", genre);
-        // Flash attributes are automatically available after redirect
-        return "edit-genre"; // Name of your edit Thymeleaf template
+        return "edit-genre";
     }
 
     // Handler to process the form submission (POST request)
     @PostMapping("/edit/{id}")
-    public String updateGenre(@ModelAttribute("genre") Genre genreDetails, Model model, RedirectAttributes redirectAttributes) {
+    public String updateGenre(@PathVariable("id") Long id, @ModelAttribute("genre") Genre genreDetails, Model model, RedirectAttributes redirectAttributes) {
+        Genre existingGenre = genreService.getGenreById(id);
+        if (existingGenre == null) {
+            throw new ResourceNotFoundException("Жанр с ID " + id + " не найден");
+        }
         boolean success = genreService.updateGenre(genreDetails);
         if (success) {
             redirectAttributes.addFlashAttribute("success", "Жанр успешно обновлен");
@@ -79,10 +86,13 @@ public class GenreController {
 
     @GetMapping("/view/{id}")
     public String showViewForm(@PathVariable("id") Long id, Model model) {
-        Genre genre = genreService.getGenreById(id); // Retrieve the existing item
+        Genre genre = genreService.getGenreById(id);
+        if (genre == null) {
+            throw new ResourceNotFoundException("Жанр с ID " + id + " не найден");
+        }
         model.addAttribute("genre", genre);
         model.addAttribute("books", bookService.getBooksByGenre(id));
-        return "view-genre"; // Name of your edit Thymeleaf template
+        return "view-genre";
     }
 
     @GetMapping("/edit/new")
@@ -108,6 +118,10 @@ public class GenreController {
 
     @GetMapping("/delete/{id}")
     public String deleteGenre(@PathVariable("id") Long id) {
+        Genre genre = genreService.getGenreById(id);
+        if (genre == null) {
+            throw new ResourceNotFoundException("Жанр с ID " + id + " не найден");
+        }
         genreService.deleteGenre(id);
         return "redirect:/genres";
     }

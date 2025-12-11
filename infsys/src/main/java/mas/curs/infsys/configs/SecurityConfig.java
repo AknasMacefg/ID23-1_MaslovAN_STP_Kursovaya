@@ -41,24 +41,6 @@ public class SecurityConfig {
     private CustomAccessDeniedHandler accessDeniedHandler;
 
 
-    /**
-     * Конфигурирует цепочку фильтров безопасности и правила авторизации.
-     * <p>
-     * Настройка включает:
-     * <ul>
-     *     <li>разрешённые маршруты для регистрации и входа;</li>
-     *     <li>ограничения доступа по ролям к REST-эндпоинтам;</li>
-     *     <li>обработку ошибок безопасности;</li>
-     *     <li>настройку форм логина и логаута;</li>
-     *     <li>подключение JWT-фильтра до стандартного фильтра аутентификации.</li>
-     * </ul>
-     * </p>
-     *
-     * @param http объект {@link HttpSecurity}, используемый для настройки безопасности
-     * @return настроенная цепочка {@link SecurityFilterChain}
-     * @throws Exception если произошла ошибка конфигурации
-     */
-
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {

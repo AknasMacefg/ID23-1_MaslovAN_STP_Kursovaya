@@ -1,4 +1,5 @@
 package mas.curs.infsys.controllers;
+import mas.curs.infsys.exceptions.ResourceNotFoundException;
 import mas.curs.infsys.models.Series;
 import mas.curs.infsys.services.SeriesService;
 import mas.curs.infsys.services.BookService;
@@ -56,15 +57,21 @@ public class SeriesController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
-        Series series = seriesService.getSeriesById(id); // Retrieve the existing item
+        Series series = seriesService.getSeriesById(id);
+        if (series == null) {
+            throw new ResourceNotFoundException("Серия с ID " + id + " не найдена");
+        }
         model.addAttribute("series", series);
-        // Flash attributes are automatically available after redirect
-        return "edit-series"; // Name of your edit Thymeleaf template
+        return "edit-series";
     }
 
     // Handler to process the form submission (POST request)
     @PostMapping("/edit/{id}")
-    public String updateSeries(@ModelAttribute("series") Series seriesDetails, Model model, RedirectAttributes redirectAttributes) {
+    public String updateSeries(@PathVariable("id") Long id, @ModelAttribute("series") Series seriesDetails, Model model, RedirectAttributes redirectAttributes) {
+        Series existingSeries = seriesService.getSeriesById(id);
+        if (existingSeries == null) {
+            throw new ResourceNotFoundException("Серия с ID " + id + " не найдена");
+        }
         boolean success = seriesService.updateSeries(seriesDetails);
         if (success) {
             redirectAttributes.addFlashAttribute("success", "Серия успешно обновлена");
@@ -79,10 +86,13 @@ public class SeriesController {
 
     @GetMapping("/view/{id}")
     public String showViewForm(@PathVariable("id") Long id, Model model) {
-        Series series = seriesService.getSeriesById(id); // Retrieve the existing item
+        Series series = seriesService.getSeriesById(id);
+        if (series == null) {
+            throw new ResourceNotFoundException("Серия с ID " + id + " не найдена");
+        }
         model.addAttribute("series", series);
         model.addAttribute("books", bookService.getBooksBySeries(id));
-        return "view-series"; // Name of your edit Thymeleaf template
+        return "view-series";
     }
 
     @GetMapping("/edit/new")
@@ -108,6 +118,10 @@ public class SeriesController {
 
     @GetMapping("/delete/{id}")
     public String deleteSeries(@PathVariable("id") Long id) {
+        Series series = seriesService.getSeriesById(id);
+        if (series == null) {
+            throw new ResourceNotFoundException("Серия с ID " + id + " не найдена");
+        }
         seriesService.deleteSeries(id);
         return "redirect:/series";
     }

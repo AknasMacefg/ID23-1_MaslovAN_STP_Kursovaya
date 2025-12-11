@@ -1,4 +1,5 @@
 package mas.curs.infsys.controllers;
+import mas.curs.infsys.exceptions.ResourceNotFoundException;
 import mas.curs.infsys.models.Book;
 import mas.curs.infsys.models.User;
 import mas.curs.infsys.services.BookService;
@@ -30,8 +31,6 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/books")
 public class BookController {
-
-    /** Репозиторий пользователей, обеспечивающий доступ к данным. */
     private final BookService bookService;
     private final AuthorService authorService;
     private final GenreService genreService;
@@ -39,16 +38,6 @@ public class BookController {
     private final WishlistService wishlistService;
     private final UserService userService;
 
-    /**
-     * Конструктор контроллера пользователей.
-     *
-     * @param bookService сервис книг
-     * @param authorService сервис авторов
-     * @param genreService сервис жанров
-     * @param seriesService сервис серий
-     * @param wishlistService сервис списка желаний
-     * @param userService сервис пользователей
-     */
     public BookController(BookService bookService, AuthorService authorService, 
                          GenreService genreService, SeriesService seriesService,
                          WishlistService wishlistService, UserService userService) {
@@ -60,13 +49,6 @@ public class BookController {
         this.userService = userService;
     }
 
-    /**
-     * Отображает панель управления пользователями.
-     *
-     * @param model объект {@link Model} для передачи данных в шаблон (список пользователей и сообщения)
-     * @param msg необязательное сообщение (используется для отображения статуса операции)
-     * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
-     */
     @GetMapping
     public String bookPage(Model model, 
                           @RequestParam(required = false) String msg,
@@ -102,12 +84,14 @@ public class BookController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
         Book book = bookService.getBookById(id);
+        if (book == null) {
+            throw new ResourceNotFoundException("Книга с ID " + id + " не найдена");
+        }
         model.addAttribute("books", book);
         model.addAttribute("allAuthors", authorService.getAllAuthors());
         model.addAttribute("allGenres", genreService.getAllGenres());
         model.addAttribute("allSeries", seriesService.getAllSeriess());
         
-        // Get currently selected IDs
         List<Long> selectedAuthorIds = book.getBookAuthor().stream()
             .map(ba -> ba.getAuthor().getId())
             .collect(Collectors.toList());
@@ -118,7 +102,6 @@ public class BookController {
             .map(bs -> bs.getSeries().getId())
             .collect(Collectors.toList());
         
-        // Get main author ID
         Long mainAuthorId = book.getBookAuthor().stream()
             .filter(ba -> ba.getMain_author())
             .map(ba -> ba.getAuthor().getId())
@@ -147,67 +130,54 @@ public class BookController {
                                @RequestParam(value = "status", required = false) String statusStr,
                                RedirectAttributes redirectAttributes) {
 
+        Book existingBook = bookService.getBookById(id);
+        if (existingBook == null) {
+            throw new ResourceNotFoundException("Книга с ID " + id + " не найдена");
+        }
+
         try {
-            // Validate ISBN format
             if (book.getIsbn() != null && !book.getIsbn().trim().isEmpty()) {
                 String isbn = book.getIsbn().replaceAll("[\\s-]", "");
                 boolean isValidISBN = false;
-                
-                // Check ISBN-10: 10 characters, last can be X
                 if (isbn.length() == 10) {
                     isValidISBN = isbn.matches("^[0-9]{9}[0-9X]$");
                 }
-                // Check ISBN-13: 13 digits
                 else if (isbn.length() == 13) {
                     isValidISBN = isbn.matches("^[0-9]{13}$");
                 }
-                
                 if (!isValidISBN) {
                     redirectAttributes.addFlashAttribute("error", "Некорректный формат ISBN. Используйте ISBN-10 (10 символов) или ISBN-13 (13 цифр)");
                     return "redirect:/books/edit/" + id;
                 }
             }
-
-            // Handle file upload
             if (file != null && !file.isEmpty()) {
                 String fileName = saveImage(file);
                 book.setImage_url("/images/books/" + fileName);
             } else if (book.getImage_url() == null || book.getImage_url().isEmpty()) {
-                // Keep existing photo if no new file uploaded
-                Book existingBook = bookService.getBookById(id);
                 if (existingBook != null) {
                     book.setImage_url(existingBook.getImage_url());
                 }
             }
 
-            deleteOldImage(bookService.getBookById(id).getImage_url());
-
-            // Convert language string to enum - keep existing if invalid
+            deleteOldImage(existingBook.getImage_url());
             if (languageStr != null && !languageStr.isEmpty()) {
                 try {
                     book.setLanguage(mas.curs.infsys.models.Language.valueOf(languageStr));
                 } catch (IllegalArgumentException e) {
-                    // Keep existing language if invalid value provided
-                    Book existingBook = bookService.getBookById(id);
                     if (existingBook != null && existingBook.getLanguage() != null) {
                         book.setLanguage(existingBook.getLanguage());
                     }
                 }
             } else {
-                // Keep existing language if empty
-                Book existingBook = bookService.getBookById(id);
                 if (existingBook != null && existingBook.getLanguage() != null) {
                     book.setLanguage(existingBook.getLanguage());
                 }
             }
 
-            // Convert status string to enum
             if (statusStr != null && !statusStr.isEmpty()) {
                 try {
                     book.setStatus(mas.curs.infsys.models.BookStatus.valueOf(statusStr));
                 } catch (IllegalArgumentException e) {
-                    // Keep existing status if invalid value provided
-                    Book existingBook = bookService.getBookById(id);
                     if (existingBook != null && existingBook.getStatus() != null) {
                         book.setStatus(existingBook.getStatus());
                     } else {
@@ -215,8 +185,6 @@ public class BookController {
                     }
                 }
             } else {
-                // Keep existing status if empty
-                Book existingBook = bookService.getBookById(id);
                 if (existingBook != null && existingBook.getStatus() != null) {
                     book.setStatus(existingBook.getStatus());
                 } else {
@@ -248,9 +216,11 @@ public class BookController {
     @GetMapping("/view/{id}")
     public String showViewForm(@PathVariable("id") Long id, Model model) {
         Book book = bookService.getBookById(id);
+        if (book == null) {
+            throw new ResourceNotFoundException("Книга с ID " + id + " не найдена");
+        }
         model.addAttribute("books", book);
-        
-        // Check if book is in current user's wishlist
+
         User currentUser = getCurrentUser();
         boolean inWishlist = false;
         if (currentUser != null) {
@@ -264,6 +234,11 @@ public class BookController {
 
     @PostMapping("/view/{id}/wishlist/add")
     public String addToWishlist(@PathVariable("id") Long bookId, RedirectAttributes redirectAttributes) {
+        Book book = bookService.getBookById(bookId);
+        if (book == null) {
+            throw new ResourceNotFoundException("Книга с ID " + bookId + " не найдена");
+        }
+
         User currentUser = getCurrentUser();
         if (currentUser == null) {
             redirectAttributes.addFlashAttribute("error", "Необходимо войти в систему");
@@ -281,6 +256,11 @@ public class BookController {
 
     @PostMapping("/view/{id}/wishlist/remove")
     public String removeFromWishlist(@PathVariable("id") Long bookId, RedirectAttributes redirectAttributes) {
+        Book book = bookService.getBookById(bookId);
+        if (book == null) {
+            throw new ResourceNotFoundException("Книга с ID " + bookId + " не найдена");
+        }
+
         User currentUser = getCurrentUser();
         if (currentUser == null) {
             redirectAttributes.addFlashAttribute("error", "Необходимо войти в систему");
@@ -415,13 +395,16 @@ public class BookController {
 
     @GetMapping("/delete/{id}")
     public String deleteBook(@PathVariable("id") Long id) {
+        Book book = bookService.getBookById(id);
+        if (book == null) {
+            throw new ResourceNotFoundException("Книга с ID " + id + " не найдена");
+        }
         bookService.deleteBook(id);
         return "redirect:/books";
     }
 
 
     private String saveImage(MultipartFile file) throws IOException {
-        // Generate unique filename
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
         String fileExtension = "";
 
@@ -431,14 +414,12 @@ public class BookController {
 
         String fileName = UUID.randomUUID().toString() + fileExtension;
 
-        // Create upload directory if it doesn't exist
         String UPLOAD_DIR = "src/main/resources/static/images/books/";
         Path uploadPath = Paths.get(UPLOAD_DIR);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Save file
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 

@@ -32,15 +32,10 @@ public class ScheduledTasks {
      * - Updates book statuses from SOON to RELEASED if release_date has passed
      * - Sends email notifications to users who have released books in their wishlist
      */
-    @Scheduled(cron = "0 0 2 * * ?") // Every day at 2 AM
+    @Scheduled(cron = "0 0 2 * * ?")
     public void dailyMaintenance() {
-        // Send deletion warnings to users who will be deleted in one month
         sendDeletionWarnings();
-
-        // Delete old users
         deleteOldUsers();
-
-        // Update book statuses and send notifications
         updateBookStatusesAndNotify();
     }
 
