@@ -32,15 +32,6 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    /** Компонент, обрабатывающий ошибки при отсутствии аутентификации. */
-    @Autowired
-    private CustomAuthenticationEntryPoint authEntryPoint;
-
-    /** Компонент, обрабатывающий ошибки при отказе в доступе (403 Forbidden). */
-    @Autowired
-    private CustomAccessDeniedHandler accessDeniedHandler;
-
-
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
@@ -51,7 +42,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()  // ВСЁ API открыто
+                        // Все запросы к /api/** явно запрещены.
+                        .anyRequest().denyAll()
                 );
 
 
@@ -105,13 +97,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Возвращает менеджер аутентификации, основанный на текущей конфигурации.
-     *
-     * @param config объект {@link AuthenticationConfiguration}, предоставляемый Spring Security
-     * @return экземпляр {@link AuthenticationManager}
-     * @throws Exception в случае ошибки инициализации
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {

@@ -25,13 +25,6 @@ public class ScheduledTasks {
     @Autowired
     private EmailService emailService;
 
-    /**
-     * Runs every 24 hours at 2 AM
-     * - Sends deletion warnings to users who will be deleted in one month
-     * - Deletes users whose last logout was more than a year ago
-     * - Updates book statuses from SOON to RELEASED if release_date has passed
-     * - Sends email notifications to users who have released books in their wishlist
-     */
     @Scheduled(cron = "0 0 2 * * ?")
     public void dailyMaintenance() {
         sendDeletionWarnings();
@@ -39,10 +32,7 @@ public class ScheduledTasks {
         updateBookStatusesAndNotify();
     }
 
-    /**
-     * Sends email warnings to users whose accounts will be deleted in one month
-     * (users whose last logout was 11 months ago)
-     */
+
     private void sendDeletionWarnings() {
         LocalDateTime elevenMonthsAgo = LocalDateTime.now().minusMonths(11);
         LocalDateTime elevenMonthsAndOneDayAgo = LocalDateTime.now().minusMonths(11).minusDays(1);
@@ -84,7 +74,7 @@ public class ScheduledTasks {
 
         for (Book book : updatedBooks) {
             if (book.getStatus() == BookStatus.RELEASED) {
-                // Find all users who have this book in their wishlist
+
                 List<User> users = userService.getAllUsers();
                 for (User user : users) {
                     if (user.getUserWishlist() != null && user.isEmail_notification()) {
