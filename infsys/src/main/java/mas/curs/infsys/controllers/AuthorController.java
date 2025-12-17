@@ -24,27 +24,14 @@ import java.util.UUID;
 @RequestMapping("/authors")
 public class AuthorController {
 
-    /** Репозиторий пользователей, обеспечивающий доступ к данным. */
     private final AuthorService authorService;
     private final BookService bookService;
 
-    /**
-     * Конструктор контроллера пользователей.
-     *
-     * @param userRepository репозиторий пользователей
-     */
     public AuthorController(AuthorService authorService, BookService bookService) {
         this.authorService = authorService;
         this.bookService = bookService;
     }
 
-    /**
-     * Отображает панель управления пользователями.
-     *
-     * @param model объект {@link Model} для передачи данных в шаблон (список пользователей и сообщения)
-     * @param msg необязательное сообщение (используется для отображения статуса операции)
-     * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
-     */
     @GetMapping
     public String authorPage(Model model, 
                             @RequestParam(required = false) String msg,
@@ -177,7 +164,7 @@ public class AuthorController {
 
 
     private String saveImage(MultipartFile file) throws IOException {
-        // Generate unique filename
+
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
         String fileExtension = "";
 
@@ -187,14 +174,12 @@ public class AuthorController {
 
         String fileName = UUID.randomUUID().toString() + fileExtension;
 
-        // Create upload directory if it doesn't exist
         String UPLOAD_DIR = "src/main/resources/static/images/authors/";
         Path uploadPath = Paths.get(UPLOAD_DIR);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Save file
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -207,7 +192,6 @@ public class AuthorController {
                 Path oldFilePath = Paths.get("src/main/resources/static" + oldImagePath);
                 Files.deleteIfExists(oldFilePath);
             } catch (IOException e) {
-                // Log the error but don't fail the operation
                 e.printStackTrace();
             }
         }

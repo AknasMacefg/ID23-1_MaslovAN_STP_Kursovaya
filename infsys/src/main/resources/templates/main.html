@@ -60,7 +60,11 @@
 <main class="container-fluid flex-grow-1 py-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="text-center mb-4">Скоро в продаже</h1>
+            <h1 class="text-center mb-3">Скоро в продаже</h1>
+            <p class="text-center text-muted mb-4">
+                Это календарь релизов издательства «Инженерия Данных»: здесь вы можете увидеть, какие книги выходят в ближайшее время,
+                просмотреть подробную информацию о каждом издании и перейти к карточке книги с описанием, авторами и серией. Для добавления в список желаний, пожалуйста зарегистрируйтесь или войдите в аккаунт!
+            </p>
             <div class="main-calendar-scrollable">
                 <div th:each="dateEntry : ${booksByDate}" 
                      class="calendar-date-section"

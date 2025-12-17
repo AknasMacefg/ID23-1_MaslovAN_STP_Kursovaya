@@ -29,7 +29,6 @@ public class UserService {
     public List<User> getUsersFilteredAndSorted(String role, String sortBy, String search) {
         List<User> users = userRepository.findAll();
         
-        // Apply search filter
         if (search != null && !search.trim().isEmpty()) {
             String searchLower = search.toLowerCase().trim();
             users = users.stream()
@@ -41,14 +40,12 @@ public class UserService {
                 .collect(Collectors.toList());
         }
         
-        // Apply filter
         if (role != null && !role.isEmpty()) {
             users = users.stream()
                 .filter(user -> user.getRole() != null && user.getRole().toString().equalsIgnoreCase(role))
                 .collect(Collectors.toList());
         }
         
-        // Apply sorting
         if (sortBy != null && !sortBy.isEmpty()) {
             switch (sortBy) {
                 case "username":
@@ -112,6 +109,11 @@ public class UserService {
     }
 
     public boolean existsUserByEmail (String email) { return userRepository.existsByEmail(email); }
+
+    public boolean existsUserByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
     public boolean isEmpty(){
         return userRepository.count() == 0;
     }
@@ -122,7 +124,7 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail()) || userRepository.existsByUsername(user.getUsername())) {
             return false;
         }
-        // Шифруем сырой пароль перед сохранением
+
         if (user.getPassword() != null && !user.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
@@ -136,7 +138,7 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
-            // Delete all UserWishlist entries for this user using repository
+
             List<mas.curs.infsys.models.UserWishlist> wishlistItems = userWishlistRepository.findAll().stream()
                 .filter(wl -> wl.getUser() != null && wl.getUser().getId().equals(userId))
                 .collect(java.util.stream.Collectors.toList());
@@ -168,12 +170,12 @@ public class UserService {
             return false;
         }
         
-        // Verify old password
+
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             return false;
         }
         
-        // Encode and set new password
+
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setUpdated_at(LocalDateTime.now());
         userRepository.saveAndFlush(user);
@@ -186,17 +188,17 @@ public class UserService {
             return false;
         }
         
-        // Verify password
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return false;
         }
         
-        // Check if new email is already taken by another user
+
         if (userRepository.existsByEmail(newEmail) && !user.getEmail().equals(newEmail)) {
             return false;
         }
         
-        // Set new email
+
         user.setEmail(newEmail);
         user.setUpdated_at(LocalDateTime.now());
         userRepository.saveAndFlush(user);

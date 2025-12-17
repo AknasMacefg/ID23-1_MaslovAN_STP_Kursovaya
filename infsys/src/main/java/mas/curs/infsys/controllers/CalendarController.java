@@ -19,11 +19,8 @@ public class CalendarController {
     @GetMapping("/")
     public String mainPage(Model model) {
         LocalDate today = LocalDate.now();
-        
-        // Get all upcoming release dates (only for unreleased books with status SOON)
         List<LocalDate> releaseDates = bookService.getUpcomingReleaseDates();
-        
-        // Get books for each date (only unreleased books with status SOON)
+
         java.util.Map<LocalDate, List<mas.curs.infsys.models.Book>> booksByDate = new java.util.LinkedHashMap<>();
         for (LocalDate date : releaseDates) {
             booksByDate.put(date, bookService.getBooksByReleaseDate(date));

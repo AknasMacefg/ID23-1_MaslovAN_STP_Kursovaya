@@ -13,27 +13,17 @@ import java.util.List;
 @Controller
 @RequestMapping("/series")
 public class SeriesController {
-    /** Репозиторий пользователей, обеспечивающий доступ к данным. */
+
     private final SeriesService seriesService;
     private final BookService bookService;
 
-    /**
-     * Конструктор контроллера пользователей.
-     *
-     * @param userRepository репозиторий пользователей
-     */
+
     public SeriesController(SeriesService seriesService, BookService bookService) {
         this.seriesService = seriesService;
         this.bookService = bookService;
     }
 
-    /**
-     * Отображает панель управления пользователями.
-     *
-     * @param model объект {@link Model} для передачи данных в шаблон (список пользователей и сообщения)
-     * @param msg необязательное сообщение (используется для отображения статуса операции)
-     * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
-     */
+
     @GetMapping
     public String seriesPage(Model model, 
                              @RequestParam(required = false) String msg,

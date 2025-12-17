@@ -171,12 +171,15 @@
                                     <td th:text="${user.log_in_at != null ? #temporals.format(user.log_in_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
                                     <td th:text="${user.logout_at != null ? #temporals.format(user.logout_at, 'dd.MM.yyyy HH:mm') : '-'}"></td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="btn-group" role="group" th:if="${user.email != #authentication.name}">
                                             <a class="btn btn-sm btn-primary" th:href="@{/users/edit/{id}(id=${user.id})}">Изменить</a>
-                                            <a class="btn btn-sm btn-danger" 
+                                            <a class="btn btn-sm btn-danger"
                                                th:href="@{/users/delete/{id}(id=${user.id})}"
                                                onclick="return confirm('Вы уверены, что хотите удалить пользователя? Все записи в списке желаний этого пользователя будут удалены.');">Удалить</a>
                                         </div>
+                                        <span class="text-muted small" th:if="${user.email == #authentication.name}">
+                                            -
+                                        </span>
                                     </td>
                                 </tr>
                             </tbody>

@@ -1,7 +1,6 @@
 package mas.curs.infsys.services;
 
 import mas.curs.infsys.models.Author;
-import mas.curs.infsys.models.Book;
 import mas.curs.infsys.repositories.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -28,8 +27,7 @@ public class AuthorService {
 
     public List<Author> getAuthorsSorted(String sortBy, String search, int page, int pageSize) {
         List<Author> authors = authorRepository.findAll();
-        
-        // Apply search filter
+
         if (search != null && !search.trim().isEmpty()) {
             String searchLower = search.toLowerCase().trim();
             authors = authors.stream()
@@ -63,8 +61,7 @@ public class AuthorService {
                     break;
             }
         }
-        
-        // Apply pagination if more than pageSize items
+
         if (authors.size() > pageSize) {
             int start = page * pageSize;
             int end = Math.min(start + pageSize, authors.size());
@@ -89,7 +86,6 @@ public class AuthorService {
 
     @org.springframework.transaction.annotation.Transactional
     public void deleteAuthor(Long authorId) {
-        // Delete all BookAuthor relationships using repository
         List<mas.curs.infsys.models.BookAuthor> bookAuthors = bookAuthorRepository.findAll().stream()
             .filter(ba -> ba.getAuthor() != null && ba.getAuthor().getId().equals(authorId))
             .collect(java.util.stream.Collectors.toList());

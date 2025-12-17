@@ -374,7 +374,6 @@ public class BookController {
             Book savedBook = bookService.addBookAndReturn(book);
 
             if (savedBook != null && savedBook.getId() != null) {
-                // Update relationships after book is saved (so it has an ID)
                 Long bookId = savedBook.getId();
                 bookService.setBookAuthors(bookId, authorIds, mainAuthorId);
                 bookService.setBookGenres(bookId, genreIds);
@@ -432,7 +431,7 @@ public class BookController {
                 Path oldFilePath = Paths.get("src/main/resources/static" + oldImagePath);
                 Files.deleteIfExists(oldFilePath);
             } catch (IOException e) {
-                // Log the error but don't fail the operation
+
                 e.printStackTrace();
             }
         }

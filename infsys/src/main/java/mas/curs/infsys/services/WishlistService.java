@@ -73,7 +73,7 @@ public class WishlistService {
 
     public List<UserWishlist> getAllWishlistItems() {
         List<User> users = userRepository.findAll();
-        // Filter to only include users with role USER or ADMIN (for testing)
+
         return users.stream()
             .filter(user -> user.getRole() == Role.USER || 
                            user.getRole() == Role.ADMIN)
@@ -96,8 +96,6 @@ public class WishlistService {
                 }
             }
         }
-        
-        // Sort by count descending and limit to top 10
         return authorCounts.entrySet().stream()
             .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
             .limit(10)
@@ -124,8 +122,7 @@ public class WishlistService {
                 }
             }
         }
-        
-        // Sort by count descending and limit to top 10
+
         return genreCounts.entrySet().stream()
             .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
             .limit(10)
@@ -141,16 +138,14 @@ public class WishlistService {
         List<UserWishlist> wishlistItems = getAllWishlistItems();
         Map<String, Long> timelineCounts = new LinkedHashMap<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        
-        // Group by date
+
         for (UserWishlist item : wishlistItems) {
             if (item.getAdded_at() != null) {
                 String dateStr = item.getAdded_at().format(formatter);
                 timelineCounts.put(dateStr, timelineCounts.getOrDefault(dateStr, 0L) + 1);
             }
         }
-        
-        // Sort by date ascending
+
         return timelineCounts.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
             .collect(Collectors.toMap(

@@ -29,22 +29,12 @@ public class UserController {
     /** Репозиторий пользователей, обеспечивающий доступ к данным. */
     private final UserService userService;
 
-    /**
-     * Конструктор контроллера пользователей.
-     *
-     * @param userRepository репозиторий пользователей
-     */
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    /**
-     * Отображает панель управления пользователями.
-     *
-     * @param model объект {@link Model} для передачи данных в шаблон (список пользователей и сообщения)
-     * @param msg необязательное сообщение (используется для отображения статуса операции)
-     * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
-     */
+
     @GetMapping
     public String userPage(Model model, 
                           @RequestParam(required = false) String msg,
@@ -71,14 +61,20 @@ public class UserController {
         return "edit-user";
     }
 
-    // Handler to process the form submission (POST request)
     @PostMapping("/edit/{id}")
     public String updateItem(@PathVariable("id") Long id, @ModelAttribute("user") User userDetails, RedirectAttributes redirectAttributes) {
         User existingUser = userService.getUserById(id);
         if (existingUser == null) {
             throw new ResourceNotFoundException("Пользователь с ID " + id + " не найден");
         }
-        userService.addUser(userDetails);
+
+    
+        existingUser.setUsername(userDetails.getUsername());
+        existingUser.setEmail(userDetails.getEmail());
+        existingUser.setRole(userDetails.getRole());
+        existingUser.setEmail_notification(userDetails.isEmail_notification());
+
+        userService.addUser(existingUser);
         redirectAttributes.addFlashAttribute("success", "Пользователь успешно обновлен");
         return "redirect:/users";
     }

@@ -13,27 +13,17 @@ import java.util.List;
 @Controller
 @RequestMapping("/genres")
 public class GenreController {
-    /** Репозиторий пользователей, обеспечивающий доступ к данным. */
+
     private final GenreService genreService;
     private final BookService bookService;
 
-    /**
-     * Конструктор контроллера пользователей.
-     *
-     * @param userRepository репозиторий пользователей
-     */
+
     public GenreController(GenreService genreService, BookService bookService) {
         this.genreService = genreService;
         this.bookService = bookService;
     }
 
-    /**
-     * Отображает панель управления пользователями.
-     *
-     * @param model объект {@link Model} для передачи данных в шаблон (список пользователей и сообщения)
-     * @param msg необязательное сообщение (используется для отображения статуса операции)
-     * @return имя Thymeleaf-шаблона страницы пользователей ({@code users})
-     */
+
     @GetMapping
     public String genrePage(Model model, 
                            @RequestParam(required = false) String msg,
@@ -65,7 +55,6 @@ public class GenreController {
         return "edit-genre";
     }
 
-    // Handler to process the form submission (POST request)
     @PostMapping("/edit/{id}")
     public String updateGenre(@PathVariable("id") Long id, @ModelAttribute("genre") Genre genreDetails, Model model, RedirectAttributes redirectAttributes) {
         Genre existingGenre = genreService.getGenreById(id);

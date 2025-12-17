@@ -1,27 +1,19 @@
 package mas.curs.infsys.services;
 
-import mas.curs.infsys.models.Book;
+
 import mas.curs.infsys.models.Series;
 import mas.curs.infsys.repositories.SeriesRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @Service
 public class SeriesService {
-    private static final Logger log = LoggerFactory.getLogger(SeriesService.class);
-    @Autowired
-    private UserService userService;
 
-    @Autowired
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Autowired
     private SeriesRepository seriesRepository;
     
@@ -39,8 +31,6 @@ public class SeriesService {
 
     public List<Series> getSeriesSorted(String sortBy, String search, int page, int pageSize) {
         List<Series> series = seriesRepository.findAll();
-        
-        // Apply search filter
         if (search != null && !search.trim().isEmpty()) {
             String searchLower = search.toLowerCase().trim();
             series = series.stream()
@@ -62,8 +52,7 @@ public class SeriesService {
                     break;
             }
         }
-        
-        // Apply pagination if more than pageSize items
+
         if (series.size() > pageSize) {
             int start = page * pageSize;
             int end = Math.min(start + pageSize, series.size());
@@ -88,7 +77,7 @@ public class SeriesService {
 
     @org.springframework.transaction.annotation.Transactional
     public void deleteSeries(Long seriesId) {
-        // Delete all BookSeries relationships using repository
+
         List<mas.curs.infsys.models.BookSeries> bookSeries = bookSeriesRepository.findAll().stream()
             .filter(bs -> bs.getSeries() != null && bs.getSeries().getId().equals(seriesId))
             .collect(java.util.stream.Collectors.toList());
@@ -109,11 +98,11 @@ public class SeriesService {
     public boolean updateSeries(Series series) {
         if (seriesRepository.existsById(series.getId())) {
             String lowerName = series.getName().toLowerCase(Locale.ROOT);
-            // Check if name exists, but exclude the current series being edited
+
             java.util.Optional<Series> existingSeriesWithName = seriesRepository.findByName(lowerName);
             
             if (existingSeriesWithName.isPresent() && !existingSeriesWithName.get().getId().equals(series.getId())) {
-                // Name exists and belongs to a different series
+
                 return false;
             }
             series.setName(lowerName);
